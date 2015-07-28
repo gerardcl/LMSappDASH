@@ -11,3 +11,11 @@ h1 {
 	left:50%;
 	margin:0px 0 0 -150px;
 } 
+
+#lmsInput {
+	width:400px;
+	height:300px;
+	position:absolute;
+	left:50%;
+	margin:0px 0 0 -150px;
+} 

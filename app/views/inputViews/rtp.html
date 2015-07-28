@@ -1,24 +1,40 @@
-<div class="row">
-  <div class="col-sm-offset-2 col-sm-10">
-    <p>Set the RTP input params</p>
-  </div>
-</div> 
-<div class="row">
-  <form class="form-horizontal" role="form" id="setRTMPForm">
-    <div class="form-group">
-      <label class="control-label col-sm-2" for="email"></label>
-      <div class="col-sm-10">
-        <input type="text" class="form-control" id='host' placeholder="port (e.g.: 5004)">
+<div id="rtpInput">
+  <br>
+  <div class="row">
+    <div class="col-sm-offset-2 col-sm-8">
+      <p>Select media and configure RTP input params</p>
+    </div>
+  </div> 
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="btn-group" role="group">
+        <button id="rtpAudioBtn" type="button" class="btn btn-default">Audio</button>
+      <button id="rtpVideoBtn" type="button" class="btn btn-default">Video</button>
+      <button id="rtpAVBtn" type="button" class="btn btn-default">Both</button>
       </div>
     </div>
-    <div class="form-group"> 
-      <div class="col-sm-offset-2 col-sm-10">
-        <input type="submit" class="btn btn-default" value="Set and continue"></input>
-      </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-10" id="rtpInputParams">
     </div>
-  </form>
-</div>
-<div class="row">
-  <div class="col-sm-offset-2 col-sm-10 alert alert-danger hidden" id="message">
+  </div>
+  <div class="row">   
+  <div class="row">
+    <div class="col-sm-offset-2 col-sm-8 alert alert-danger hidden" id="message">
+    </div>
   </div>
 </div>
+<script>
+  $('#rtpAudioBtn').on('click', function(event) {
+      event.preventDefault(); // To prevent following the link (optional)
+      $("#rtpInputParams").load("./app/views/inputViews/rtpInputs/rtpAudioInput.html");
+  });
+  $('#rtpVideoBtn').on('click', function(event) {
+      event.preventDefault(); // To prevent following the link (optional)
+      $("#rtpInputParams").load("./app/views/inputViews/rtpInputs/rtpVideoInput.html");
+  });
+  $('#rtpAVBtn').on('click', function(event) {
+      event.preventDefault(); // To prevent following the link (optional)
+      $("#rtpInputParams").load("./app/views/inputViews/rtpInputs/rtpAVinput.html");
+  });
+</script>

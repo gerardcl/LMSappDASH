@@ -1,5 +1,5 @@
 $(document).ready( function() {
-    var apiURI = 'http://127.0.0.1:8080/api';
+    var apiURI = null;
 	var lmsInstance = null, 
 		lmsInput = null,
 		lmsDashRepresentation = null,
@@ -10,18 +10,27 @@ $(document).ready( function() {
     ////////////////////////////////////////////    
     $("#view").load("./app/views/instance.html");
 
-    $( document ).on( "submit", "form", function() {
+    $( document ).on( "submit", "form", function(event) {
+        event.preventDefault(); // To prevent following the link (optional)
         var form = $(this);
-
-        console.log(form)
-        console.log(form.context.id)
-
         switch (form.context.id){
             case 'connectForm':
                 connectForm(form);
                 break;
             case 'setRTMPForm':
                 setRTMPForm(form);
+                break;
+            case 'setRTSPForm':
+                setRTSPForm(form);
+                break;
+            case 'setRTPaudioForm':
+                setRTPaudioForm(form);
+                break;
+            case 'setRTPvideoForm':
+                setRTPvideoForm(form);
+                break;
+            case 'setRTPavForm':
+                setRTPavForm(form);
                 break;
             default:
                 addAlertError('ERROR: no form available');
@@ -40,6 +49,7 @@ $(document).ready( function() {
                         if(!msg.error){
                             lmsInstance = null;
                             addAlertSuccess(msg.message);
+                            apiURI = null;
                             $("#disconnectButton").addClass("hidden");
                             $("#view").load("./app/views/instance.html");
                         } else {
@@ -51,7 +61,6 @@ $(document).ready( function() {
                     }
                 })
             }
-            console.log('lmsInstance: '+lmsInstance)        
         });
     });
 
@@ -64,7 +73,7 @@ $(document).ready( function() {
             'port' : form.find( "input[id='port']" ).val()
         };
 
-        var uri = apiURI +'/connect';
+        var uri = 'http://'+message.host+':8080/api/connect';
         $.ajax({
             type: 'POST',
             url: uri,
@@ -74,6 +83,7 @@ $(document).ready( function() {
                 if(!msg.error){
                     lmsInstance = message;
                     addAlertSuccess(msg.message);
+                    apiURI = 'http://'+message.host+':8080/api';
                     $("#disconnectButton").removeClass("hidden");
                     $("#view").load("./app/views/input.html");
                 } else {
@@ -90,34 +100,28 @@ $(document).ready( function() {
     };
 
     function setRTMPForm(form) {
-        var params = { 
-            'type' : 'demuxer',
-            'uri' : form.find( "input[id='uri']" ).val()
-        };
+        console.log(form.context.id)
 
-        var uri = apiURI +'/connect';
-        $.ajax({
-            type: 'POST',
-            url: uri,
-            data: message,
-            dataType: 'json',
-            success : function(msg) {
-                if(!msg.error){
-                    lmsInstance = message;
-                    addAlertSuccess(msg.message);
-                    $("#disconnectButton").removeClass("hidden");
-                    $("#view").load("./app/views/input.html");
-                } else {
-                    lmsInstance = null;
-                    addAlertError(msg.error);
-                }
-            },
-            error : function(xhr, msg) {
-                lmsInstance = null;
-                addAlertError('ERROR: \
-                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
-            }
-        })
+    };
+
+    function setRTSPForm(form) {
+        console.log(form.context.id)
+
+    };
+
+    function setRTPaudioForm(form) {
+        console.log(form.context.id)
+
+    };
+
+    function setRTPvideoForm(form) {
+        console.log(form.context.id)
+
+    };
+
+    function setRTPavForm(form) {
+        console.log(form.context.id)
+
     };
 
     ////////////////////////////////////////////

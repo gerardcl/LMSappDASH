@@ -1,20 +1,20 @@
 <div class="row">
-  <form id="addVideoForm" class="form-horizontal" role="form" action="/app/avmixer/video/addSession" method="post">
+  <form id="setRTPaudioForm" class="form-horizontal" role="form">
     <div class="col-sm-offset-3 col-sm-6">
       <div class="row">
-        <div class="col-sm-12 text-center">
+        <div class="col-sm-12">
           <h4>Set audio input</h4>
         </div>
       </div>
       <div class="row">
-        <div class="col-sm-12 text-center text-center">
-          <input type="numeric" class="form-control input-sm text-center" name="port" id="port" placeholder="Port">
+        <div class="col-sm-12">
+          <input type="numeric" class="form-control input-sm" name="port" id="port" placeholder="Port" required="true">
         </div>
       </div>
       <div class = "row">&nbsp;</div>
       <div class="row">
-        <div class="col-sm-12 text-center">
-          <select class="form-control" name="codec">
+        <div class="col-sm-12">
+          <select class="form-control" name="codec" required="true">
             <option value="none">Codec</option>
             <option value="pcm">PCM</option>
             <option value="pcmu">PCMU</option>
@@ -25,8 +25,8 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-sm-12 text-center">
-          <select class="form-control" name="sampleRate">
+        <div class="col-sm-12">
+          <select class="form-control" name="sampleRate" required="true">
             <option value="none">Smp.Rate</option>
             <option value="8000">8000</option>
             <option value="44100">44100</option>
@@ -35,8 +35,8 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-sm-12 text-center">
-          <select class="form-control" name="channels">
+        <div class="col-sm-12">
+          <select class="form-control" name="channels" required="true">
             <option value="none">Channels</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -46,10 +46,10 @@
       </div>
       <div class = "row">&nbsp;</div><br>
       <div class="row">
-        <div class="col-sm-12 text-center">
-          <button type="submit" class="btn btn-default">Set and continue</button>
+        <div class="col-sm-12">
+          <input type="submit" class="btn btn-default" value="Set and continue"></input>
         </div>
       </div>
-   </form>
-   <br>
+    </form>
+  <br>
 </div>

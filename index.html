@@ -4,10 +4,14 @@
     <head>
         <title>LiveMediaStreamer API DEMO for DASH</title>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">        
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">        
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="./style/app.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src="https://github.com/makeusabrew/bootbox/releases/download/v4.4.0/bootbox.min.js"></script>
+        <script src="./app/app.js"></script>
     </head>
 
     <body>
@@ -16,12 +20,26 @@
     <div id="view">
     </div>
 
-    </body>
+    <div id="error">
+    </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="./app/app.js"></script>
+    <div id="success">
+    </div>
+
+    <div id="footer">
+        <div class="row">
+            <div class="col-sm-6" id="back">
+                <a id="backButton" href="#" data-bb="confirm" class="btn btn-default hidden"><span class="glyphicon glyphicon-step-backward"></span> Back</a>
+            </div>
+            <div class="col-sm-6" id="disconnect">
+                <a id="disconnectButton" href="#" data-bb="confirm" class="btn btn-default hidden"><span class="glyphicon glyphicon-stop"></span> Disconnect</a>
+            </div>
+        </div>
+    </div>
+
+    </body>
     <script>
+    // FORCE TO ALERT WHEN RELOADING...
     window.onbeforeunload = function (e) {
         e = e || window.event;
         if (e) {

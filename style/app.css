@@ -11,7 +11,6 @@ h1 {
 	left:50%;
 	margin:0px 0 0 -150px;
 } 
-
 #lmsInput {
 	width:400px;
 	height:300px;
@@ -19,3 +18,26 @@ h1 {
 	left:50%;
 	margin:0px 0 0 -150px;
 } 
+#error {
+   position:absolute;
+   bottom:65px;
+   width:50%;
+   left:25%;
+   height:60px;   /* Height of the footer */
+}
+
+#success {
+   position:absolute;
+   bottom:65px;
+   width:50%;
+   left:25%;
+   height:60px;   /* Height of the footer */
+}
+
+#footer {
+   position:absolute;
+   bottom:0px;
+   width:50%;
+   left:25%;
+   height:60px;   /* Height of the footer */
+}

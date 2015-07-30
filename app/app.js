@@ -69,11 +69,13 @@ $(document).ready( function() {
     ////////////////////////////////////////////
     function connectForm(form) {
         var message = { 
-            'host' : form.find( "input[id='host']" ).val(),
-            'port' : form.find( "input[id='port']" ).val()
+            'host' : form.find( "input[id='lms-host']" ).val(),
+            'port' : form.find( "input[id='lms-port']" ).val()
         };
+        var apiHost = form.find( "input[id='api-host']" ).val();
+        var apiPort = form.find( "input[id='api-port']" ).val();
 
-        var uri = 'http://'+message.host+':8080/api/connect';
+        var uri = 'http://'+apiHost+':'+apiPort+'/api/connect';
         $.ajax({
             type: 'POST',
             url: uri,
@@ -83,7 +85,7 @@ $(document).ready( function() {
                 if(!msg.error){
                     lmsInstance = message;
                     addAlertSuccess(msg.message);
-                    apiURI = 'http://'+message.host+':8080/api';
+                    apiURI = 'http://'+apiHost+':'+apiPort+'/api';
                     $("#disconnectButton").removeClass("hidden");
                     $("#view").load("./app/views/input.html");
                 } else {

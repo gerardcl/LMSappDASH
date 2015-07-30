@@ -1,24 +1,36 @@
 <div class="row">
-    <div class="col-sm-12">
-      <h3>First of all, connect to a running LiveMediaStreamer instance</h3>
+  <div class="col-sm-12">
+    <h3>First of all, test API and LiveMediaStreamer instance connectivity</h3>
+  </div>
+</div> 
+<div class="row">
+  <form class="form-horizontal" role="form" id="connectForm">
+    <h4>API connectivity parameters</h4>
+    <div class="form-group">
+      <div class="col-sm-12">
+        <input type="text" class="form-control" id='api-host' placeholder="Enter API host (e.g.: 127.0.0.1)" required="true">
+      </div>
     </div>
-  </div> 
-  <div class="row">
-    <form class="form-horizontal" role="form" id="connectForm">
-      <div class="form-group">
-        <div class="col-sm-12">
-          <input type="text" class="form-control" id='host' placeholder="Enter LMS host (e.g.: 127.0.0.1)" required="true">
-        </div>
+    <div class="form-group">
+      <div class="col-sm-12"> 
+        <input type="text" class="form-control" id='api-port' placeholder="Enter API port (e.g.: 8080)" required="true">
       </div>
-      <div class="form-group">
-        <div class="col-sm-12"> 
-          <input type="text" class="form-control" id='port' placeholder="Enter LMS port (e.g.: 7777)" required="true">
-        </div>
+    </div> 
+    <h4>LMS connectivity parameters</h4>
+    <div class="form-group">
+      <div class="col-sm-12">
+        <input type="text" class="form-control" id='lms-host' placeholder="Enter LMS host (e.g.: 127.0.0.1)" required="true">
       </div>
-      <div class="form-group"> 
-        <div class="col-sm-12">
-          <input id="connectBtn" type="submit" class="btn btn-default" value="Connect"></input>
-        </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-12"> 
+        <input type="text" class="form-control" id='lms-port' placeholder="Enter LMS port (e.g.: 7777)" required="true">
       </div>
-    </form>
+    </div>
+    <div class="form-group"> 
+      <div class="col-sm-12">
+        <input id="connectBtn" type="submit" class="btn btn-default" value="Connect"></input>
+      </div>
+    </div>
+  </form>
 </div>

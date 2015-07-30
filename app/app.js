@@ -24,13 +24,13 @@ $(document).ready( function() {
                 setRTSPForm(form);
                 break;
             case 'setRTPaudioForm':
-                setRTPaudioForm(form);
+                setRTPForm(form);
                 break;
             case 'setRTPvideoForm':
-                setRTPvideoForm(form);
+                setRTPForm(form);
                 break;
             case 'setRTPavForm':
-                setRTPavForm(form);
+                setRTPForm(form);
                 break;
             default:
                 addAlertError('ERROR: no form available');
@@ -102,28 +102,120 @@ $(document).ready( function() {
     };
 
     function setRTMPForm(form) {
-        console.log(form.context.id)
-
+        var uri = form.find( "input[id='uri']" ).val();
+        if(/^(rtmp):\/\/[^ "]+$/.test(uri)){
+            lmsInput = {
+                'type' : 'rtmp',
+                'uri' : uri
+            };
+            addAlertSuccess('Success setting network input params');
+            $("#view").load("./app/views/dasher.html");
+        } else {
+            lmsInput = null;
+            addAlertError('ERROR: no valid inputs... please check.');
+        }
     };
 
     function setRTSPForm(form) {
-        console.log(form.context.id)
+        var uri = form.find( "input[id='uri']" ).val();
+        if(/^(rtsp):\/\/[^ "]+$/.test(uri)){
+            lmsInput = {
+                'type'      : 'rtsp',
+                'progName'  : 'lms',
+                'id'        : 1985,
+                'uri'       : uri
+            };
+            addAlertSuccess('Success setting network input params');
+            $("#view").load("./app/views/dasher.html");
+        } else {
+            lmsInput = null;
+            addAlertError('ERROR: no valid inputs... please check.');
+        }
 
     };
 
-    function setRTPaudioForm(form) {
-        console.log(form.context.id)
-
-    };
-
-    function setRTPvideoForm(form) {
-        console.log(form.context.id)
-
-    };
-
-    function setRTPavForm(form) {
-        console.log(form.context.id)
-
+    function setRTPForm(form) {
+        switch(form.find( "input[name='rtpInput']" ).val()){
+            case 'v':
+                var vport = form.find( "input[name='port']" ).val();
+                if(form.find( "select[name='codec']" ).val() === "none" || !(vport === parseInt(vport, 10))){
+                    lmsInput = null;
+                    addAlertError('ERROR: no valid inputs... please check.');
+                } else {
+                    lmsInput = {
+                        'type'      : 'rtp',
+                        'medium'    : 'video',
+                        'codec'     : form.find( "select[name='codec']" ).val(),
+                        'port'      : vport,
+                        'bandwidth' : 5000,
+                        'timeStampFrequency'   : 90000,
+                        'channels'  : null
+                    };
+                    addAlertSuccess('Success setting network input params');
+                    $("#view").load("./app/views/dasher.html");
+                }
+                break;
+            case 'a':
+                var aport = form.find( "input[name='port']" ).val();
+                if(form.find( "select[name='codec']" ).val() === "none" 
+                    || form.find( "select[name='sampleRate']" ).val() === "none" 
+                    || form.find( "select[name='channels']" ).val() === "none"
+                    || !(aport === parseInt(aport, 10))){
+                        lmsInput = null;
+                        addAlertError('ERROR: no valid inputs... please check.');
+                } else {
+                    lmsInput = {
+                        'type'      : 'rtp',
+                        'medium'    : 'audio',
+                        'codec'     : form.find( "select[name='codec']" ).val(),
+                        'port'      : aport,
+                        'bandwidth' : 5000,
+                        'timeStampFrequency'   : form.find( "select[name='sampleRate']" ).val(),
+                        'channels'  : form.find( "select[name='channels']" ).val()
+                    };
+                    addAlertSuccess('Success setting network input params');
+                    $("#view").load("./app/views/dasher.html");
+                }
+                break;
+            case 'av':
+                var aport = form.find( "input[name='audio-port']" ).val();
+                var vport = form.find( "input[name='video-port']" ).val();
+                if(form.find( "select[name='audio-codec']" ).val() === "none" 
+                    || form.find( "select[name='video-codec']" ).val() === "none"
+                    || form.find( "select[name='sampleRate']" ).val() === "none" 
+                    || form.find( "select[name='channels']" ).val() === "none"
+                    || !(aport === parseInt(aport, 10))
+                    || !(vport === parseInt(vport, 10))){
+                        lmsInput = null;
+                        addAlertError('ERROR: no valid inputs... please check.');
+                } else {
+                    lmsInput = {
+                        'type'      : 'rtp',
+                        'audio'     : {
+                            'medium'    : 'audio',
+                            'codec'     : form.find( "select[name='audio-codec']" ).val(),
+                            'port'      : aport,
+                            'bandwidth' : 5000,
+                            'timeStampFrequency'   : form.find( "select[name='sampleRate']" ).val(),
+                            'channels'  : form.find( "select[name='channels']" ).val()
+                        },
+                        'video'     : {
+                            'medium'    : 'video',
+                            'codec'     : form.find( "select[name='video-codec']" ).val(),
+                            'port'      : vport,
+                            'bandwidth' : 5000,
+                            'timeStampFrequency'   : 90000,
+                            'channels'  : null
+                        }
+                    };
+                    addAlertSuccess('Success setting network input params');
+                    $("#view").load("./app/views/dasher.html");
+                }
+                break;
+            default:
+                lmsInput = null;
+                addAlertError('ERROR: no valid inputs... please check.');
+        }
     };
 
     ////////////////////////////////////////////

@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="col-sm-12">
+    <h3>Finally, configure the dasher</h3>
+    <h4>Set dasher params</h4>
+  </div>
+  </div> 
+  <div class="row">
+  <form class="form-horizontal" role="form" id="dasherForm">
+    <div class="form-group">
+      <div class="col-sm-12">
+        <input type="text" class="form-control" id='dashFolder' placeholder="e.g.: /tmp/dashSegments" required="true">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-12"> 
+        <input type="text" class="form-control" id='baseName' placeholder="e.g.: dash" required="true">
+      </div>
+    </div> 
+    <div class="form-group">
+      <div class="col-sm-12">
+        <input type="text" class="form-control" id='segDurInSec' placeholder="e.g.: 2" required="true">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-12"> 
+        <input type="text" class="form-control" id='lms-port' placeholder="Enter LMS port (e.g.: 7777)" required="true">
+      </div>
+    </div>
+
+    <h4>And add representations</h4>
+
+
+    <div class="form-group"> 
+      <div class="col-sm-12">
+        <input id="connectBtn" type="submit" class="btn btn-default" value="Start DASHER!"></input>
+      </div>
+    </div>
+  </form>
+  </div>    
+  <div class="row">
+    <div class="col-sm-12" id="inputParams">
+    </div>
+</div>
+<br><br>
+<script>
+    $('#rtmpBtn').on('click', function(event) {
+        event.preventDefault(); // To prevent following the link (optional)
+        $("#inputParams").load("./app/views/inputViews/rtmp.html");
+    });
+    $('#rtspBtn').on('click', function(event) {
+        event.preventDefault(); // To prevent following the link (optional)
+        $("#inputParams").load("./app/views/inputViews/rtsp.html");
+    });
+    $('#rtpBtn').on('click', function(event) {
+        event.preventDefault(); // To prevent following the link (optional)
+        $("#inputParams").load("./app/views/inputViews/rtp.html");
+    });
+</script>

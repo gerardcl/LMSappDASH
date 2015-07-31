@@ -1,10 +1,30 @@
 <div class="row">
   <div class="col-sm-12">
-    <h3>Finally, configure the dasher</h3>
-    <h4>Set dasher params</h4>
+    <h3>Now, configure the dasher</h3>
   </div>
-  </div> 
-  <div class="row">
+</div> 
+<h4>First, add representations</h4>
+<br>
+<div class="row">
+  <div class="col-sm-12">
+    <div class="btn-group" role="group">
+      <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#addRepresentationModal"><span class="glyphicon glyphicon-plus"></span> Add representation</button>
+    </div>
+  </div>
+</div> 
+<p></p>
+<div class="row">
+  <div class="col-sm-12" id="videoDashRepresentations">
+  </div>
+</div>
+<p></p>
+<div class="row">
+  <div class="col-sm-12" id="audioDashRepresentations">
+  </div>
+</div>
+<br>
+<h4>Finally, set dasher params</h4>
+<div class="row">
   <form class="form-horizontal" role="form" id="dasherForm">
     <div class="form-group">
       <div class="col-sm-12">
@@ -26,33 +46,136 @@
         <input type="text" class="form-control" id='lms-port' placeholder="Enter LMS port (e.g.: 7777)" required="true">
       </div>
     </div>
-
-    <h4>And add representations</h4>
-
-
     <div class="form-group"> 
+    <br><br>
       <div class="col-sm-12">
         <input id="connectBtn" type="submit" class="btn btn-default" value="Start DASHER!"></input>
       </div>
     </div>
   </form>
-  </div>    
-  <div class="row">
-    <div class="col-sm-12" id="inputParams">
+</div>    
+
+<!-- Modal window - form: addRepresentationModal -->
+<div class="modal fade" id="addRepresentationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Select media representation type</h4>
+      </div>
+      <div class="modal-body">
+      <!-- The form is placed inside the body of modal -->
+        <div class="row">
+          <div class="col-sm-6">
+            <button data-dismiss="modal" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addAudioModal"><span class="glyphicon glyphicon-plus"></span> Add audio </button>
+          </div>
+          <div class="col-sm-6">
+            <button data-dismiss="modal" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addVideoModal"><span class="glyphicon glyphicon-plus"></span> Add video</button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-<br><br>
-<script>
-    $('#rtmpBtn').on('click', function(event) {
-        event.preventDefault(); // To prevent following the link (optional)
-        $("#inputParams").load("./app/views/inputViews/rtmp.html");
-    });
-    $('#rtspBtn').on('click', function(event) {
-        event.preventDefault(); // To prevent following the link (optional)
-        $("#inputParams").load("./app/views/inputViews/rtsp.html");
-    });
-    $('#rtpBtn').on('click', function(event) {
-        event.preventDefault(); // To prevent following the link (optional)
-        $("#inputParams").load("./app/views/inputViews/rtp.html");
-    });
+
+<!-- Modal window - form: addAudioModal -->
+<div class="modal fade" id="addAudioModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add new audio representation</h4>
+      </div>
+      <div class="modal-body">
+      <!-- The form is placed inside the body of modal -->
+        <div class="row">
+          <div class="col-sm-12">
+            <form id="addAudioDASHForm" class="form" role="form">
+              <input type="numeric" class="form-control input-sm" name="sampleRate" placeholder="Sample rate (e.g.: 48000)">
+              <div class = "row">&nbsp;</div>
+              <input type="numeric" class="form-control input-sm" name="channels" placeholder="Channels (e.g.: 2)">
+              <div class = "row">&nbsp;</div>
+              <input type="numeric" class="form-control input-sm" name="bitRate" placeholder="Bit rate (e.g.: 192000)">
+              <div class = "row">&nbsp;</div>
+              <input data-dismiss="modal" type="submit" class="btn btn-default" value="Add" id="addAudio"></input>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal window - form: addVideoModal -->
+<div class="modal fade" id="addVideoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add new video representation</h4>
+      </div>
+      <div class="modal-body">
+      <!-- The form is placed inside the body of modal -->
+        <div class="row">
+          <div class="col-sm-12">
+            <form id="addVideoDASHForm" class="form" role="form">
+              <input type="numeric" class="form-control input-sm" name="width" placeholder="Width (e.g.: 1920)">
+              <div class = "row">&nbsp;</div>
+              <input type="numeric" class="form-control input-sm" name="height" placeholder="Height (e.g.: 1080)">
+              <div class = "row">&nbsp;</div>
+              <input type="numeric" class="form-control input-sm" name="bitRate" placeholder="Bit rate (e.g.: 4000000)">
+              <div class = "row">&nbsp;</div>
+              <input data-dismiss="modal" type="submit" class="btn btn-default" value="Add" id="addVideo"></input>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+    var aId = 0;
+    var aCount = 0;
+    var vId = 1;
+    var vCount = 0;
+    $('#addVideo').on('click', function(event) {
+        vId += 2;
+        var width = $("#addVideoDASHForm").find( "input[name='width']" ).val();
+        $( "#videoDashRepresentations" ).append( 
+          "<div class=\"row specialRow\"> "+
+            "<div class=\"col-sm-3\"><strong>Video representation "+(++vCount)+"</strong></div>" +
+            "<div class=\"col-sm-3\">Width: "+width+"</div>"+
+            "<div class=\"col-sm-3\">Height: </div>"+
+            "<div class=\"col-sm-3\">Bit rate: </div>"+
+          "</div>" 
+        );
+    });         
+    $('#addAudio').on('click', function(event) {
+        aId += 2;
+        $( "#audioDashRepresentations" ).append( 
+          "<div class=\"row specialRow\">"+
+            "<div class=\"col-sm-3\"><strong>Audio representation  "+(++aCount)+"</strong></div>"+
+            "<div class=\"col-sm-3\">Sample rate: </div>"+
+            "<div class=\"col-sm-3\">Channels: </div>"+
+            "<div class=\"col-sm-3\">Bit rate: </div>"+
+          "</div>" 
+        );        
+    });         
+  /*lmsDashRepresentationList = [
+    {
+      id    : "rand",
+      type  : "video",
+      width : "1980",
+      height: "720",
+      br    : "1500"
+    },
+    {
+      id    : "rand2",
+      type  : "audio",
+      sr    : "48000",
+      ch    : "2",
+      br    : "192"      
+    }
+  ]*/
 </script>

@@ -32,6 +32,12 @@ $(document).ready( function() {
             case 'setRTPavForm':
                 setRTPForm(form);
                 break;
+            case 'addVideoDASHForm':
+                addVideoDASH(form);
+                break;
+            case 'addAudioDASHForm':
+                addAudioDASH(form);
+                break;
             default:
                 addAlertError('ERROR: no form available');
         }
@@ -138,7 +144,7 @@ $(document).ready( function() {
         switch(form.find( "input[name='rtpInput']" ).val()){
             case 'v':
                 var vport = form.find( "input[name='port']" ).val();
-                if(form.find( "select[name='codec']" ).val() === "none" || !(vport === parseInt(vport, 10))){
+                if(form.find( "select[name='codec']" ).val() === "none" || isNaN(vport)){
                     lmsInput = null;
                     addAlertError('ERROR: no valid inputs... please check.');
                 } else {
@@ -160,7 +166,7 @@ $(document).ready( function() {
                 if(form.find( "select[name='codec']" ).val() === "none" 
                     || form.find( "select[name='sampleRate']" ).val() === "none" 
                     || form.find( "select[name='channels']" ).val() === "none"
-                    || !(aport === parseInt(aport, 10))){
+                    || isNaN(aport)){
                         lmsInput = null;
                         addAlertError('ERROR: no valid inputs... please check.');
                 } else {
@@ -184,8 +190,8 @@ $(document).ready( function() {
                     || form.find( "select[name='video-codec']" ).val() === "none"
                     || form.find( "select[name='sampleRate']" ).val() === "none" 
                     || form.find( "select[name='channels']" ).val() === "none"
-                    || !(aport === parseInt(aport, 10))
-                    || !(vport === parseInt(vport, 10))){
+                    || isNaN(aport)
+                    || isNaN(vport)){
                         lmsInput = null;
                         addAlertError('ERROR: no valid inputs... please check.');
                 } else {
@@ -217,6 +223,16 @@ $(document).ready( function() {
                 addAlertError('ERROR: no valid inputs... please check.');
         }
     };
+
+    function addVideoDASH(form) {
+        console.log("ADDING NEW VIDEO TO REPRESENTATION LISTS")
+
+    };
+ 
+    function addAudioDASH(form) {
+        console.log("ADDING NEW AUDIO TO REPRESENTATION LISTS")
+
+    };   
 
     ////////////////////////////////////////////
     // ALERTS METHODS

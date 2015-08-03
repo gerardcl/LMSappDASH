@@ -1,9 +1,16 @@
 $(document).ready( function() {
+    ////////////////////////////////////////////
+    // APP. CONFIG. PARAMETERS
+    //////////////////////////////////////////// 
     var apiURI = null;
 	var lmsInstance = null, 
 		lmsInput = null,
 		lmsDashRepresentation = null,
 		lmsDashRepresentationList = null;
+    var aId = 1000;
+    var aCount = 0;
+    var vId = 1001;
+    var vCount = 0;
 
     ////////////////////////////////////////////
     // EVENTS MANAGEMENT
@@ -34,9 +41,11 @@ $(document).ready( function() {
                 break;
             case 'addVideoDASHForm':
                 addVideoDASH(form);
+                $('.modal.in').modal('hide');
                 break;
             case 'addAudioDASHForm':
                 addAudioDASH(form);
+                $('.modal.in').modal('hide');
                 break;
             default:
                 addAlertError('ERROR: no form available');
@@ -225,15 +234,62 @@ $(document).ready( function() {
     };
 
     function addVideoDASH(form) {
-        console.log("ADDING NEW VIDEO TO REPRESENTATION LISTS")
-
+        vId += 2;
+        var width = form.find( "input[name='width']" ).val();
+        var height = form.find( "input[name='height']" ).val();
+        var bitRate = form.find( "input[name='bitRate']" ).val();
+        if(!isNaN(width) || !isNaN(height) || !isNaN(bitRate)){
+            $( "#videoDashRepresentations" ).append( 
+              "<div class=\"row specialRow\"> "+
+                "<div class=\"col-sm-3\"><strong>Video representation "+(++vCount)+"</strong></div>" +
+                "<div class=\"col-sm-3\">Width: "+width+" px</div>"+
+                "<div class=\"col-sm-3\">Height: "+height+" px</div>"+
+                "<div class=\"col-sm-3\">Bit rate: "+bitRate+" bps</div>"+
+              "</div>" 
+            );
+            addAlertSuccess('Success setting new video representation');
+            //TODO load final view with running configuration (static)
+        } else {
+            addAlertError('ERROR: no valid video params... please check.');
+        }
     };
  
     function addAudioDASH(form) {
-        console.log("ADDING NEW AUDIO TO REPRESENTATION LISTS")
-
+        aId += 2;
+        var sampleRate = form.find( "input[name='sampleRate']" ).val();
+        var channels = form.find( "input[name='channels']" ).val();
+        var bitRate = form.find( "input[name='bitRate']" ).val();
+        if(!isNaN(sampleRate) || !isNaN(channels) || !isNaN(bitRate)){
+            $( "#audioDashRepresentations" ).append( 
+              "<div class=\"row specialRow\">"+
+                "<div class=\"col-sm-3\"><strong>Audio representation  "+(++aCount)+"</strong></div>"+
+                "<div class=\"col-sm-3\">Sample rate: "+sampleRate+" Hz </div>"+
+                "<div class=\"col-sm-3\">Channels: "+channels+" </div>"+
+                "<div class=\"col-sm-3\">Bit rate: "+bitRate+" bps </div>"+
+              "</div>" 
+            );
+            addAlertSuccess('Success setting new audio representation');
+            //TODO load final view with running configuration (static)
+        } else {
+            addAlertError('ERROR: no valid audio params... please check.');        
+        }                 
     };   
-
+  /*lmsDashRepresentationList = [
+    {
+      id    : "rand",
+      type  : "video",
+      width : "1980",
+      height: "720",
+      br    : "1500"
+    },
+    {
+      id    : "rand2",
+      type  : "audio",
+      sr    : "48000",
+      ch    : "2",
+      br    : "192"      
+    }
+  ]*/
     ////////////////////////////////////////////
     // ALERTS METHODS
     ////////////////////////////////////////////

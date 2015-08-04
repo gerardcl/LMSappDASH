@@ -6,10 +6,12 @@ $(document).ready( function() {
 	var lmsInstance = null, 
 		lmsInput = null,
 		lmsDashRepresentation = null,
-		lmsDashRepresentationList = null;
-    var aId = 1000;
+		lmsDashRepresentationList = [];
+    var receiverId = 1000
+    var dashId = 1001;
+    var aId = 2000;
     var aCount = 0;
-    var vId = 1001;
+    var vId = 2001;
     var vCount = 0;
 
     ////////////////////////////////////////////
@@ -41,11 +43,12 @@ $(document).ready( function() {
                 break;
             case 'addVideoDASHForm':
                 addVideoDASH(form);
-                $('.modal.in').modal('hide');
                 break;
             case 'addAudioDASHForm':
                 addAudioDASH(form);
-                $('.modal.in').modal('hide');
+                break;
+            case 'dasherForm':
+                startDASHER(form);
                 break;
             default:
                 addAlertError('ERROR: no form available');
@@ -252,6 +255,7 @@ $(document).ready( function() {
         } else {
             addAlertError('ERROR: no valid video params... please check.');
         }
+        $('.modal.in').modal('hide');
     };
  
     function addAudioDASH(form) {
@@ -273,7 +277,14 @@ $(document).ready( function() {
         } else {
             addAlertError('ERROR: no valid audio params... please check.');        
         }                 
-    };   
+        $('.modal.in').modal('hide');
+    };  
+
+    function startDASHER(form) {
+        var sampleRate = form.find( "input[name='sampleRate']" ).val();
+
+    }; 
+     
   /*lmsDashRepresentationList = [
     {
       id    : "rand",

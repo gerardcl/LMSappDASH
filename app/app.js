@@ -4,15 +4,19 @@ $(document).ready( function() {
     //////////////////////////////////////////// 
     var apiURI = null;
 	var lmsInstance = null, 
+        lmsState = null,
 		lmsInput = null,
-		lmsDashRepresentation = null,
-		lmsDashRepresentationList = [];
+		lmsDash = null,
+        lmsVideos = [];
+        lmsAudios = [];
     var receiverId = 1000
     var dashId = 1001;
-    var aId = 2000;
-    var aCount = 0;
-    var vId = 2001;
+    var vDecoderId = 2000;
+    var aDecoderId = 2001;
+    var vId = 3000;
     var vCount = 0;
+    var aId = 4000;
+    var aCount = 0;
 
     ////////////////////////////////////////////
     // EVENTS MANAGEMENT
@@ -53,6 +57,11 @@ $(document).ready( function() {
             default:
                 addAlertError('ERROR: no form available');
         }
+        console.log(lmsInstance);
+        console.log(lmsInput);
+        console.log(lmsVideos);
+        console.log(lmsAudios);
+        console.log(lmsDash);
     });
 
     $('#disconnectButton').on('click', function(event) {
@@ -163,11 +172,18 @@ $(document).ready( function() {
                     lmsInput = {
                         'type'      : 'rtp',
                         'medium'    : 'video',
-                        'codec'     : form.find( "select[name='codec']" ).val(),
-                        'port'      : vport,
-                        'bandwidth' : 5000,
-                        'timeStampFrequency'   : 90000,
-                        'channels'  : null
+                        'params'    : {
+                            "subsessions":[
+                                {
+                                    "medium":"video",
+                                    "codec":form.find( "select[name='codec']" ).val(),
+                                    "bandwidth":5000,
+                                    "timeStampFrequency":90000,
+                                    "channels":null,
+                                    "port":parseInt(vport),
+                                }   
+                            ]
+                        }
                     };
                     addAlertSuccess('Success setting network input params');
                     $("#view").load("./app/views/dasher.html");
@@ -185,11 +201,18 @@ $(document).ready( function() {
                     lmsInput = {
                         'type'      : 'rtp',
                         'medium'    : 'audio',
-                        'codec'     : form.find( "select[name='codec']" ).val(),
-                        'port'      : aport,
-                        'bandwidth' : 5000,
-                        'timeStampFrequency'   : form.find( "select[name='sampleRate']" ).val(),
-                        'channels'  : form.find( "select[name='channels']" ).val()
+                        'params'    : {
+                            "subsessions":[
+                                {
+                                    "medium":"audio",
+                                    "codec":form.find( "select[name='codec']" ).val(),
+                                    "bandwidth":5000,
+                                    "timeStampFrequency":parseInt(form.find( "select[name='sampleRate']" ).val()),
+                                    "channels":parseInt(form.find( "select[name='channels']" ).val()),
+                                    "port":parseInt(aport),
+                                }   
+                            ]
+                        }
                     };
                     addAlertSuccess('Success setting network input params');
                     $("#view").load("./app/views/dasher.html");
@@ -209,21 +232,30 @@ $(document).ready( function() {
                 } else {
                     lmsInput = {
                         'type'      : 'rtp',
-                        'audio'     : {
-                            'medium'    : 'audio',
-                            'codec'     : form.find( "select[name='audio-codec']" ).val(),
-                            'port'      : aport,
-                            'bandwidth' : 5000,
-                            'timeStampFrequency'   : form.find( "select[name='sampleRate']" ).val(),
-                            'channels'  : form.find( "select[name='channels']" ).val()
+                        'medium'    : 'both',
+                        'audioParams'    : {
+                            "subsessions":[
+                                {
+                                    "medium":"audio",
+                                    "codec":form.find( "select[name='audio-codec']" ).val(),
+                                    "bandwidth":5000,
+                                    "timeStampFrequency":parseInt(form.find( "select[name='sampleRate']" ).val()),
+                                    "channels":parseInt(form.find( "select[name='channels']" ).val()),
+                                    "port":parseInt(aport),
+                                }   
+                            ]
                         },
-                        'video'     : {
-                            'medium'    : 'video',
-                            'codec'     : form.find( "select[name='video-codec']" ).val(),
-                            'port'      : vport,
-                            'bandwidth' : 5000,
-                            'timeStampFrequency'   : 90000,
-                            'channels'  : null
+                        'videoParams'    : {
+                            "subsessions":[
+                                {
+                                    "medium":"video",
+                                    "codec":form.find( "select[name='video-codec']" ).val(),
+                                    "bandwidth":5000,
+                                    "timeStampFrequency":90000,
+                                    "channels":null,
+                                    "port":parseInt(vport),
+                                }   
+                            ]
                         }
                     };
                     addAlertSuccess('Success setting network input params');
@@ -233,15 +265,23 @@ $(document).ready( function() {
             default:
                 lmsInput = null;
                 addAlertError('ERROR: no valid inputs... please check.');
+                break;
         }
     };
 
     function addVideoDASH(form) {
-        vId += 2;
         var width = form.find( "input[name='width']" ).val();
         var height = form.find( "input[name='height']" ).val();
         var bitRate = form.find( "input[name='bitRate']" ).val();
         if(!isNaN(width) || !isNaN(height) || !isNaN(bitRate)){
+            lmsVideos.push(
+                {
+                    "id": parseInt(vId),  
+                    "width": parseInt(width),
+                    "height": parseInt(height),
+                    "bitRate": parseInt(bitRate) 
+                }
+            );
             $( "#videoDashRepresentations" ).append( 
               "<div class=\"row specialRow\"> "+
                 "<div class=\"col-sm-3\"><strong>Video representation "+(++vCount)+"</strong></div>" +
@@ -250,8 +290,8 @@ $(document).ready( function() {
                 "<div class=\"col-sm-3\">Bit rate: "+bitRate+" bps</div>"+
               "</div>" 
             );
+            vId += 2;
             addAlertSuccess('Success setting new video representation');
-            //TODO load final view with running configuration (static)
         } else {
             addAlertError('ERROR: no valid video params... please check.');
         }
@@ -259,11 +299,18 @@ $(document).ready( function() {
     };
  
     function addAudioDASH(form) {
-        aId += 2;
         var sampleRate = form.find( "input[name='sampleRate']" ).val();
         var channels = form.find( "input[name='channels']" ).val();
         var bitRate = form.find( "input[name='bitRate']" ).val();
         if(!isNaN(sampleRate) || !isNaN(channels) || !isNaN(bitRate)){
+            lmsAudios.push(
+                {
+                    "id": parseInt(aId),  
+                    "sampleRate": parseInt(sampleRate),
+                    "channels": parseInt(channels),
+                    "bitRate": parseInt(bitRate) 
+                }
+            );
             $( "#audioDashRepresentations" ).append( 
               "<div class=\"row specialRow\">"+
                 "<div class=\"col-sm-3\"><strong>Audio representation  "+(++aCount)+"</strong></div>"+
@@ -272,8 +319,8 @@ $(document).ready( function() {
                 "<div class=\"col-sm-3\">Bit rate: "+bitRate+" bps </div>"+
               "</div>" 
             );
+            aId += 2;
             addAlertSuccess('Success setting new audio representation');
-            //TODO load final view with running configuration (static)
         } else {
             addAlertError('ERROR: no valid audio params... please check.');        
         }                 
@@ -281,26 +328,167 @@ $(document).ready( function() {
     };  
 
     function startDASHER(form) {
-        var sampleRate = form.find( "input[name='sampleRate']" ).val();
+        var dashFolder = form.find( "input[id='dashFolder']" ).val();
+        var baseName = form.find( "input[id='baseName']" ).val();
+        var segDurInSec = form.find( "input[id='segDurInSec']" ).val();
+        //TODO to check inputs (e.g.: 8 >= int(segDurInSec) >= 0)
+        lmsDash = {
+            "folder":dashFolder,
+            "baseName":baseName,
+            "segDurInSec":parseInt(segDurInSec)
+        };
+        $("#view").load("./app/views/state.html");
+
+        setReceiverAndDecoders();
+
+        setResamplersAndEncoders();
+
+        setDasher();
+
+        getState();
 
     }; 
      
-  /*lmsDashRepresentationList = [
-    {
-      id    : "rand",
-      type  : "video",
-      width : "1980",
-      height: "720",
-      br    : "1500"
-    },
-    {
-      id    : "rand2",
-      type  : "audio",
-      sr    : "48000",
-      ch    : "2",
-      br    : "192"      
-    }
-  ]*/
+    ////////////////////////////////////////////
+    // SPECIFIC API METHODS
+    ////////////////////////////////////////////
+    function getState() {
+        $.ajax({
+            type: 'GET',
+            url: apiURI+'/state',
+            dataType: 'json',
+            async: false,
+            success : function(msg) {
+                if(!msg.error){
+                    lmsState = msg.message;
+                    console.log(lmsState);
+                    return true;
+                } else {
+                    lmsState = null;
+                    addAlertError(msg.error);
+                    return false;
+                }
+            },
+            error : function(xhr, msg) {
+                lmsState = null;
+                addAlertError('ERROR: \
+                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
+                return false;
+            }
+        })        
+    }; 
+
+    function setReceiverAndDecoders() {
+        createFilter(receiverId, 'receiver');
+        configReceiverAndCreateDecoders();
+    };
+
+    function setResamplersAndEncoders(){
+
+    };
+
+    function setDasher(){
+
+    };
+
+    function configReceiverAndCreateDecoders(){
+        var okmsg = false;
+        switch(lmsInput.type){
+            case 'rtmp':
+                break;
+            case 'rtsp':
+                break;
+            case 'rtp':
+                switch(lmsInput.medium){
+                    case 'video':
+                        if (configureRTP(lmsInput.params) && createFilter(vDecoderId,'videoDecoder')){
+                            okmsg = true;
+                        }
+                        break;
+                    case 'audio':
+                        if (configureRTP(lmsInput.params) && createFilter(aDecoderId,'audioDecoder')){
+                            okmsg = true;
+                        }
+                        break;
+                    case 'both':
+                        if(configureRTP(lmsInput.audioParams) && createFilter(aDecoderId,'audioDecoder')){ 
+                            if(configureRTP(lmsInput.videoParams) && createFilter(vDecoderId,'videoDecoder')){
+                            okmsg = true;
+                        }}
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        console.log('receiver status: ');
+        console.log(okmsg);
+        if(okmsg){
+            addAlertSuccess('Input and decoding steps configured!');
+        } else {
+            addAlertError('ERROR configuring, please disconnect and try again...');
+        }
+    }; 
+
+    function configureRTP(params) {
+        var okmsg = false;
+        var message = [{
+                        "action":"addSession",
+                        "params":params
+                    }];
+        $.ajax({
+            type: 'PUT',
+            async: false,
+            url: apiURI+'/filter/'+receiverId,
+            data: JSON.stringify(message),
+            contentType: "application/json; charset=utf-8",
+            traditional: true,
+            success : function(msg) {
+                if(!msg.error){
+                    console.log(msg.message);
+                    $("#state").append('<p>'+msg.message+'</p>');
+                    okmsg = true;
+                } else {
+                    console.log(msg.error);
+                }
+            },
+            error : function(xhr, msg) {
+                console.log('ERROR: \
+                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
+            }
+        })         
+        return okmsg;
+    };  
+
+    function createFilter(id, type) {
+        var okmsg = false;
+        var message = {'id' : Number(id), 'type' : type};
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: apiURI+'/createFilter',
+            data: JSON.stringify(message),
+            contentType: "application/json; charset=utf-8",
+            traditional: true,
+            success : function(msg) {
+                if(!msg.error){
+                    console.log(msg.message);
+                    $("#state").append('<p>'+msg.message+'</p>');
+                    okmsg = true;
+                } else {
+                    console.log(msg.error);
+                }
+            },
+            error : function(xhr, msg) {
+                console.log('ERROR: \
+                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
+            }
+        })         
+        return okmsg;
+    };       
+
     ////////////////////////////////////////////
     // ALERTS METHODS
     ////////////////////////////////////////////
@@ -320,6 +508,7 @@ $(document).ready( function() {
                 $(JQueryId).alert('close');
             });
         }, 2000);
+        return true;
     };
     function addAlertSuccess(message) {
         var id = 'lmsSuccess';
@@ -337,6 +526,7 @@ $(document).ready( function() {
                 $(JQueryId).alert('close');
             });
         }, 2000);
+        return true;
     };
 
 });

@@ -358,11 +358,9 @@ $(document).ready( function() {
 
             getState();
 
-            $("#state").html('');
-
             addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED!');
 
-            setTimeout(loadPlayer(),3000);
+            setTimeout(loadPlayer(),4000);
         }
     }; 
      
@@ -370,6 +368,7 @@ $(document).ready( function() {
     // SPECIFIC SCENARIO/UI METHODS
     ////////////////////////////////////////////
     function loadPlayer() {
+        $("#state").html('');
         $("#dashPlayerURI").removeClass("hidden");
         $("#dashPlayerBtn").removeClass("hidden");
         $("#dashPlayerBtn").click(function () { 

@@ -9,6 +9,7 @@ $(document).ready( function() {
 		lmsDash = null,
         lmsVideos = [];
         lmsAudios = [];
+        lmsPaths = [];
     var receiverId = 1000
     var dashId = 1001;
     var vDecoderId = 2000;
@@ -17,6 +18,10 @@ $(document).ready( function() {
     var vCount = 0;
     var aId = 4000;
     var aCount = 0;
+    var vMasterPathId = 10000;
+    var aMasterPathId = 11000;
+    var vDstReaderId = 12000;
+    var aDstReaderId = 13000;
 
     ////////////////////////////////////////////
     // EVENTS MANAGEMENT
@@ -78,6 +83,7 @@ $(document).ready( function() {
                             addAlertSuccess(msg.message);
                             apiURI = null;
                             $("#disconnectButton").addClass("hidden");
+                            $("#state").html('');
                             $("#view").load("./app/views/instance.html");
                         } else {
                             addAlertError(msg.error);
@@ -341,9 +347,9 @@ $(document).ready( function() {
 
         setReceiverAndDecoders();
 
-        setResamplersAndEncoders();
-
         setDasher();
+
+        setResamplersEncodersPathsAndSegments();
 
         getState();
 
@@ -383,12 +389,61 @@ $(document).ready( function() {
         configReceiverAndCreateDecoders();
     };
 
-    function setResamplersAndEncoders(){
-
+    function setDasher(){
+        createFilter(dashId,'dasher');
+        configureFilter(dashId, 'configure', lmsDash);
     };
 
-    function setDasher(){
-
+    function setResamplersEncodersPathsAndSegments(){
+        var i = 0;
+        for(i = 0; i < lmsVideos.length; i++){
+            createFilter(lmsVideos[i].id, 'videoResampler');
+            createFilter(lmsVideos[i].id + 1, 'videoEncoder');
+            configureFilter(lmsVideos[i].id, 'configure', { "width" : lmsVideos[i].width, "height" : lmsVideos[i].height, "discartPeriod" : 0, "pixelFormat" : 2 });
+            configureFilter(lmsVideos[i].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[i].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 25,
+                                                        "threads" : 4, "annexb" : true, "preset" : "superfast" });
+            if(i === 0){
+                if(lmsInput.medium == 'video'){
+                    createPath(vMasterPathId, receiverId, dashId, lmsInput.params.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);
+                    configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
+                    configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
+                    vDstReaderId++;
+                } else {
+                    createPath(vMasterPathId, receiverId, dashId, lmsInput.videoParams.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);                    
+                    configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
+                    configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
+                    vDstReaderId++;
+                }
+            } else {
+                createPath(vMasterPathId + i, vDecoderId, dashId, -1, vDstReaderId, [lmsVideos[i].id, lmsVideos[i].id + 1]);
+                configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
+                configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
+                vDstReaderId++;                
+            }   
+        }
+        for(i = 0; i < lmsAudios.length; i++){
+            createFilter(lmsAudios[i].id, 'audioEncoder');
+            configureFilter(lmsAudios[i].id, 'configure', { "codec" : 'aac', "sampleRate" : lmsAudios[i].sampleRate, 
+                                                            "channels" : lmsAudios[i].channels, "bitrate" : lmsAudios[i].bitRate });
+            if(i === 0){
+                if(lmsInput.medium == 'audio'){
+                    createPath(aMasterPathId, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);
+                    configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
+                    configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
+                    aDstReaderId++; 
+                } else {
+                    createPath(aMasterPathId, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);                    
+                    configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
+                    configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
+                    aDstReaderId++; 
+                }
+            } else {
+                createPath(aMasterPathId + i, aDecoderId, dashId, -1, aDstReaderId++, [lmsAudios[i].id]);
+                configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
+                configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
+                aDstReaderId++; 
+            }   
+        }
     };
 
     function configReceiverAndCreateDecoders(){
@@ -401,18 +456,18 @@ $(document).ready( function() {
             case 'rtp':
                 switch(lmsInput.medium){
                     case 'video':
-                        if (configureRTP(lmsInput.params) && createFilter(vDecoderId,'videoDecoder')){
+                        if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(vDecoderId,'videoDecoder')){
                             okmsg = true;
                         }
                         break;
                     case 'audio':
-                        if (configureRTP(lmsInput.params) && createFilter(aDecoderId,'audioDecoder')){
+                        if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(aDecoderId,'audioDecoder')){
                             okmsg = true;
                         }
                         break;
                     case 'both':
-                        if(configureRTP(lmsInput.audioParams) && createFilter(aDecoderId,'audioDecoder')){ 
-                            if(configureRTP(lmsInput.videoParams) && createFilter(vDecoderId,'videoDecoder')){
+                        if(configureFilter(receiverId, 'addSession', lmsInput.audioParams) && createFilter(aDecoderId,'audioDecoder')){ 
+                            if(configureFilter(receiverId, 'addSession', lmsInput.videoParams) && createFilter(vDecoderId,'videoDecoder')){
                             okmsg = true;
                         }}
                         break;
@@ -423,8 +478,6 @@ $(document).ready( function() {
             default:
                 break;
         }
-        console.log('receiver status: ');
-        console.log(okmsg);
         if(okmsg){
             addAlertSuccess('Input and decoding steps configured!');
         } else {
@@ -432,16 +485,16 @@ $(document).ready( function() {
         }
     }; 
 
-    function configureRTP(params) {
+    function configureFilter(filterId, action, params) {
         var okmsg = false;
         var message = [{
-                        "action":"addSession",
+                        "action":action,
                         "params":params
                     }];
         $.ajax({
             type: 'PUT',
             async: false,
-            url: apiURI+'/filter/'+receiverId,
+            url: apiURI+'/filter/'+filterId,
             data: JSON.stringify(message),
             contentType: "application/json; charset=utf-8",
             traditional: true,
@@ -462,9 +515,9 @@ $(document).ready( function() {
         return okmsg;
     };  
 
-    function createFilter(id, type) {
+    function createFilter(filterId, type) {
         var okmsg = false;
-        var message = {'id' : Number(id), 'type' : type};
+        var message = {'id' : Number(filterId), 'type' : type};
         $.ajax({
             type: 'POST',
             async: false,
@@ -488,6 +541,35 @@ $(document).ready( function() {
         })         
         return okmsg;
     };       
+
+    function createPath(pathId, orgFilterId, dstFilterId, orgWriterId, dstReaderId, midFiltersIds) {
+        var okmsg = false;
+        var message = { 'id' : pathId, 'orgFilterId' : orgFilterId, 'dstFilterId' : dstFilterId, 
+                        'orgWriterId' : orgWriterId, 'dstReaderId' : dstReaderId, 'midFiltersIds' : midFiltersIds };
+        lmsPaths.push(message);
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: apiURI+'/createPath',
+            data: JSON.stringify(message),
+            contentType: "application/json; charset=utf-8",
+            traditional: true,
+            success : function(msg) {
+                if(!msg.error){
+                    console.log(msg.message);
+                    $("#state").append('<p>'+msg.message+'</p>');
+                    okmsg = true;
+                } else {
+                    console.log(msg.error);
+                }
+            },
+            error : function(xhr, msg) {
+                console.log('ERROR: \
+                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
+            }
+        })         
+        return okmsg;
+    };     
 
     ////////////////////////////////////////////
     // ALERTS METHODS

@@ -67,6 +67,7 @@ $(document).ready( function() {
         console.log(lmsVideos);
         console.log(lmsAudios);
         console.log(lmsDash);
+        console.log(lmsPaths);
     });
 
     $('#disconnectButton').on('click', function(event) {
@@ -84,6 +85,7 @@ $(document).ready( function() {
                             apiURI = null;
                             $("#disconnectButton").addClass("hidden");
                             $("#state").html('');
+                            $("#player").addClass("hidden");
                             $("#view").load("./app/views/instance.html");
                         } else {
                             addAlertError(msg.error);
@@ -183,7 +185,7 @@ $(document).ready( function() {
                                 {
                                     "medium":"video",
                                     "codec":form.find( "select[name='codec']" ).val(),
-                                    "bandwidth":5000,
+                                    "bandwidth":1200,
                                     "timeStampFrequency":90000,
                                     "channels":null,
                                     "port":parseInt(vport),
@@ -212,7 +214,7 @@ $(document).ready( function() {
                                 {
                                     "medium":"audio",
                                     "codec":form.find( "select[name='codec']" ).val(),
-                                    "bandwidth":5000,
+                                    "bandwidth":128,
                                     "timeStampFrequency":parseInt(form.find( "select[name='sampleRate']" ).val()),
                                     "channels":parseInt(form.find( "select[name='channels']" ).val()),
                                     "port":parseInt(aport),
@@ -244,7 +246,7 @@ $(document).ready( function() {
                                 {
                                     "medium":"audio",
                                     "codec":form.find( "select[name='audio-codec']" ).val(),
-                                    "bandwidth":5000,
+                                    "bandwidth":128,
                                     "timeStampFrequency":parseInt(form.find( "select[name='sampleRate']" ).val()),
                                     "channels":parseInt(form.find( "select[name='channels']" ).val()),
                                     "port":parseInt(aport),
@@ -256,7 +258,7 @@ $(document).ready( function() {
                                 {
                                     "medium":"video",
                                     "codec":form.find( "select[name='video-codec']" ).val(),
-                                    "bandwidth":5000,
+                                    "bandwidth":1200,
                                     "timeStampFrequency":90000,
                                     "channels":null,
                                     "port":parseInt(vport),
@@ -353,6 +355,13 @@ $(document).ready( function() {
 
         getState();
 
+        $("#state").html('');
+
+        addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED! Running...');
+
+        $("#player").attr("src", "http://localhost/shaka-player/");
+        $("#player").removeClass("hidden");
+
     }; 
      
     ////////////////////////////////////////////
@@ -423,7 +432,7 @@ $(document).ready( function() {
         }
         for(i = 0; i < lmsAudios.length; i++){
             createFilter(lmsAudios[i].id, 'audioEncoder');
-            configureFilter(lmsAudios[i].id, 'configure', { "codec" : 'aac', "sampleRate" : lmsAudios[i].sampleRate, 
+            configureFilter(lmsAudios[i].id, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(lmsAudios[i].sampleRate / 1000), 
                                                             "channels" : lmsAudios[i].channels, "bitrate" : lmsAudios[i].bitRate });
             if(i === 0){
                 if(lmsInput.medium == 'audio'){

@@ -7,8 +7,8 @@ $(document).ready( function() {
         lmsState = null,
 		lmsInput = null,
 		lmsDash = null,
-        lmsVideos = [];
-        lmsAudios = [];
+        lmsVideos = [],
+        lmsAudios = [],
         lmsPaths = [];
     var receiverId = 1000
     var dashId = 1001;
@@ -85,7 +85,7 @@ $(document).ready( function() {
                             apiURI = null;
                             $("#disconnectButton").addClass("hidden");
                             $("#state").html('');
-                            $("#player").addClass("hidden");
+                            unloadPlayer();
                             $("#view").load("./app/views/instance.html");
                         } else {
                             addAlertError(msg.error);
@@ -339,64 +339,96 @@ $(document).ready( function() {
         var dashFolder = form.find( "input[id='dashFolder']" ).val();
         var baseName = form.find( "input[id='baseName']" ).val();
         var segDurInSec = form.find( "input[id='segDurInSec']" ).val();
-        //TODO to check inputs (e.g.: 8 >= int(segDurInSec) >= 0)
-        lmsDash = {
-            "folder":dashFolder,
-            "baseName":baseName,
-            "segDurInSec":parseInt(segDurInSec)
-        };
-        $("#view").load("./app/views/state.html");
 
-        setReceiverAndDecoders();
+        if(lmsAudios.length == 0 && lmsVideos.length == 0){
+            addAlertError('Please: add representations!');
+        } else {
+            lmsDash = {
+                "folder":dashFolder,
+                "baseName":baseName,
+                "segDurInSec":parseInt(segDurInSec)
+            };
+            $("#view").load("./app/views/state.html");
 
-        setDasher();
+            setReceiverAndDecoders();
 
-        setResamplersEncodersPathsAndSegments();
+            setDasher();
 
-        getState();
+            setResamplersEncodersPathsAndSegments();
 
-        $("#state").html('');
+            getState();
 
-        addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED! Running...');
+            $("#state").html('');
 
-        $("#player").attr("src", "http://localhost/shaka-player/");
-        $("#player").removeClass("hidden");
+            addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED!');
 
+            setTimeout(loadPlayer(),3000);
+        }
     }; 
      
     ////////////////////////////////////////////
-    // SPECIFIC API METHODS
+    // SPECIFIC SCENARIO/UI METHODS
     ////////////////////////////////////////////
-    function getState() {
-        $.ajax({
-            type: 'GET',
-            url: apiURI+'/state',
-            dataType: 'json',
-            async: false,
-            success : function(msg) {
-                if(!msg.error){
-                    lmsState = msg.message;
-                    console.log(lmsState);
-                    return true;
-                } else {
-                    lmsState = null;
-                    addAlertError(msg.error);
-                    return false;
-                }
-            },
-            error : function(xhr, msg) {
-                lmsState = null;
-                addAlertError('ERROR: \
-                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
-                return false;
-            }
-        })        
-    }; 
+    function loadPlayer() {
+        $("#dashPlayerURI").removeClass("hidden");
+        $("#dashPlayerBtn").removeClass("hidden");
+        $("#dashPlayerBtn").click(function () { 
+            $("#player").attr("src", $("#dashPlayerURI").val());
+            $("#player").removeClass("hidden");
+        });
+    };
+
+    function unloadPlayer(){
+        $("#dashPlayerURI").addClass("hidden");
+        $("#dashPlayerBtn").addClass("hidden");        
+        $("#player").attr("src", '');
+        $("#player").addClass("hidden");
+    }
 
     function setReceiverAndDecoders() {
         createFilter(receiverId, 'receiver');
         configReceiverAndCreateDecoders();
     };
+
+
+    function configReceiverAndCreateDecoders(){
+        var okmsg = false;
+        switch(lmsInput.type){
+            case 'rtmp':
+                break;
+            case 'rtsp':
+                break;
+            case 'rtp':
+                switch(lmsInput.medium){
+                    case 'video':
+                        if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(vDecoderId,'videoDecoder')){
+                            okmsg = true;
+                        }
+                        break;
+                    case 'audio':
+                        if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(aDecoderId,'audioDecoder')){
+                            okmsg = true;
+                        }
+                        break;
+                    case 'both':
+                        if(configureFilter(receiverId, 'addSession', lmsInput.audioParams) && createFilter(aDecoderId,'audioDecoder')){ 
+                            if(configureFilter(receiverId, 'addSession', lmsInput.videoParams) && createFilter(vDecoderId,'videoDecoder')){
+                            okmsg = true;
+                        }}
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        if(okmsg){
+            console.log('Input and decoding steps configured!');
+        } else {
+            console.log('ERROR configuring, please disconnect and try again...');
+        }
+    }; 
 
     function setDasher(){
         createFilter(dashId,'dasher');
@@ -455,45 +487,9 @@ $(document).ready( function() {
         }
     };
 
-    function configReceiverAndCreateDecoders(){
-        var okmsg = false;
-        switch(lmsInput.type){
-            case 'rtmp':
-                break;
-            case 'rtsp':
-                break;
-            case 'rtp':
-                switch(lmsInput.medium){
-                    case 'video':
-                        if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(vDecoderId,'videoDecoder')){
-                            okmsg = true;
-                        }
-                        break;
-                    case 'audio':
-                        if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(aDecoderId,'audioDecoder')){
-                            okmsg = true;
-                        }
-                        break;
-                    case 'both':
-                        if(configureFilter(receiverId, 'addSession', lmsInput.audioParams) && createFilter(aDecoderId,'audioDecoder')){ 
-                            if(configureFilter(receiverId, 'addSession', lmsInput.videoParams) && createFilter(vDecoderId,'videoDecoder')){
-                            okmsg = true;
-                        }}
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-                break;
-        }
-        if(okmsg){
-            addAlertSuccess('Input and decoding steps configured!');
-        } else {
-            addAlertError('ERROR configuring, please disconnect and try again...');
-        }
-    }; 
-
+    ////////////////////////////////////////////
+    // SPECIFIC API METHODS
+    ////////////////////////////////////////////
     function configureFilter(filterId, action, params) {
         var okmsg = false;
         var message = [{
@@ -579,6 +575,32 @@ $(document).ready( function() {
         })         
         return okmsg;
     };     
+
+    function getState() {
+        $.ajax({
+            type: 'GET',
+            url: apiURI+'/state',
+            dataType: 'json',
+            async: false,
+            success : function(msg) {
+                if(!msg.error){
+                    lmsState = msg.message;
+                    console.log(lmsState);
+                    return true;
+                } else {
+                    lmsState = null;
+                    addAlertError(msg.error);
+                    return false;
+                }
+            },
+            error : function(xhr, msg) {
+                lmsState = null;
+                addAlertError('ERROR: \
+                ' + msg + ' - ' + xhr.responseText+ ' - No API available');
+                return false;
+            }
+        })        
+    }; 
 
     ////////////////////////////////////////////
     // ALERTS METHODS

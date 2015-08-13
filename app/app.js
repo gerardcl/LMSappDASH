@@ -140,9 +140,15 @@ $(document).ready( function() {
         var uri = form.find( "input[id='uri']" ).val();
         if(/^(rtmp):\/\/[^ "]+$/.test(uri)){
             lmsInput = {
-                'type' : 'rtmp',
-                'uri' : uri
-            };
+                'type'      : 'rtmp',
+                'medium'    : '',
+                'params'    : {
+                    'uri' : uri,
+                    'subsessions' : [ {} ] 
+                },
+                'videoParams' : { 'subsessions' : [ { } ] },
+                'audioParams' : { 'subsessions' : [ { } ] }
+            };   
             addAlertSuccess('Success setting network input params');
             $("#view").load("./app/views/dasher.html");
         } else {
@@ -156,10 +162,18 @@ $(document).ready( function() {
         if(/^(rtsp):\/\/[^ "]+$/.test(uri)){
             lmsInput = {
                 'type'      : 'rtsp',
-                'progName'  : 'lms',
-                'id'        : 1985,
-                'uri'       : uri
-            };
+                'medium'    : '',
+                'params'    : {
+                    "subsessions":[ {} ],
+                    "progName"  : "LiveMediaStreamer",
+                    "id"        : "1985",
+                    "uri"       : uri
+                },
+                'videoParams' : { 'subsessions' : [ { } ] },
+                'audioParams' : { 'subsessions' : [ { } ] }
+            };  
+            console.log("TESTING");
+            console.log(lmsInput);          
             addAlertSuccess('Success setting network input params');
             $("#view").load("./app/views/dasher.html");
         } else {
@@ -356,8 +370,6 @@ $(document).ready( function() {
 
             setResamplersEncodersPathsAndSegments();
 
-            getState();
-
             addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED!');
 
             setTimeout(loadPlayer(),4000);
@@ -385,7 +397,7 @@ $(document).ready( function() {
     }
 
     function setReceiverAndDecoders() {
-        createFilter(receiverId, 'receiver');
+        createFilter(receiverId, (lmsInput.type == 'rtmp' ? 'demuxer' : 'receiver'));
         configReceiverAndCreateDecoders();
     };
 
@@ -394,8 +406,89 @@ $(document).ready( function() {
         var okmsg = false;
         switch(lmsInput.type){
             case 'rtmp':
+                if (configureFilter(receiverId, 'configure', lmsInput.params)){
+                    getState();
+                    for(var k = 0; k < lmsState.filters.length; k++){
+                        if(lmsState.filters[k].type == "demuxer"){
+                            for(var j = 0; j < lmsState.filters[k].streams.length; j++){
+                                switch (lmsState.filters[k].streams[j].type){
+                                    case 0:
+                                        createFilter(vDecoderId,'videoDecoder');
+                                        if ( j > 1) {
+                                            lmsInput.medium = 'both';
+                                            lmsInput.videoParams.subsessions[0].port = lmsState.filters[k].streams[j].wId;
+                                        }
+                                        else  {
+                                            lmsInput.medium = 'video';
+                                            lmsInput.params.subsessions[0].port = lmsState.filters[k].streams[j].wId;
+                                        }
+                                        okmsg = true;
+                                        break;
+                                    case 1:
+                                        createFilter(aDecoderId,'audioDecoder');
+                                        if ( j > 1) {
+                                            lmsInput.medium = 'both';
+                                            lmsInput.audioParams.subsessions[0].port = lmsState.filters[k].streams[j].wId;
+                                        }
+                                        else  {
+                                            lmsInput.medium = 'audio';
+                                            lmsInput.params.subsessions[0].port = lmsState.filters[k].streams[j].wId;
+                                        }
+                                        okmsg = true;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        } else {
+                            addAlertError("No demuxer found");
+                        }
+                    }
+                }
                 break;
             case 'rtsp':
+                if (configureFilter(receiverId, 'addSession', lmsInput.params)){
+                    getState();
+                    for(var k = 0; k < lmsState.filters.length; k++){
+                        if(lmsState.filters[k].type == "receiver"){
+                            var num = lmsState.filters[k].sessions[0].subsessions.length;
+                            for(var j = 0; j < num; j++){
+                                switch (lmsState.filters[k].sessions[0].subsessions[j].medium){
+                                    case "video":
+                                        createFilter(vDecoderId,'videoDecoder');
+                                        if ( num > 1) {
+                                            lmsInput.medium = 'both';
+                                            lmsInput.videoParams.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;    
+                                        }
+                                        else  {
+                                            lmsInput.medium = 'video';
+                                            lmsInput.params.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;
+                                        }
+                                        okmsg = true;
+                                        break;
+                                    case "audio":
+                                        createFilter(aDecoderId,'audioDecoder');
+                                        if ( num > 1) {
+                                            lmsInput.medium = 'both';
+                                            lmsInput.audioParams.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;
+                                        }
+                                        else  {
+                                            lmsInput.medium = 'audio';
+                                            lmsInput.params.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;
+                                        }
+                                        okmsg = true;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        } else {
+                            addAlertError("No receiver found");
+                        }
+                    }
+                }
+                console.log("RTSP")
+                console.log(lmsInput)
                 break;
             case 'rtp':
                 switch(lmsInput.medium){
@@ -443,18 +536,22 @@ $(document).ready( function() {
             configureFilter(lmsVideos[i].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[i].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 25,
                                                         "threads" : 4, "annexb" : true, "preset" : "superfast" });
             if(i === 0){
+                console.log("VIDEO MASTER PATH")
                 if(lmsInput.medium == 'video'){
+                    console.log("VIDEO")
                     createPath(vMasterPathId, receiverId, dashId, lmsInput.params.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);
                     configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                     vDstReaderId++;
-                } else {
+                } else if (lmsInput.medium == 'both') {
+                    console.log("BOTHv")
                     createPath(vMasterPathId, receiverId, dashId, lmsInput.videoParams.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                     vDstReaderId++;
                 }
             } else {
+                console.log("VIDEO SLAVE PATH")
                 createPath(vMasterPathId + i, vDecoderId, dashId, -1, vDstReaderId, [lmsVideos[i].id, lmsVideos[i].id + 1]);
                 configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
@@ -466,18 +563,22 @@ $(document).ready( function() {
             configureFilter(lmsAudios[i].id, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(lmsAudios[i].sampleRate / 1000), 
                                                             "channels" : lmsAudios[i].channels, "bitrate" : lmsAudios[i].bitRate });
             if(i === 0){
+                console.log("AUDIO MASTER PATH")
                 if(lmsInput.medium == 'audio'){
+                    console.log("AUDIO")
                     createPath(aMasterPathId, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     aDstReaderId++; 
-                } else {
+                } else if (lmsInput.medium == 'both') {
+                    console.log("BOTHa")
                     createPath(aMasterPathId, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     aDstReaderId++; 
                 }
             } else {
+                console.log("AUDIO SLAVE PATH")
                 createPath(aMasterPathId + i, aDecoderId, dashId, -1, aDstReaderId++, [lmsAudios[i].id]);
                 configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
@@ -504,6 +605,7 @@ $(document).ready( function() {
             traditional: true,
             success : function(msg) {
                 if(!msg.error){
+                    console.log("CONFIGURE FILTER");
                     console.log(msg.message);
                     $("#state").append('<p>'+msg.message+'</p>');
                     okmsg = true;
@@ -531,6 +633,7 @@ $(document).ready( function() {
             traditional: true,
             success : function(msg) {
                 if(!msg.error){
+                    console.log("CREATE FILTER");
                     console.log(msg.message);
                     $("#state").append('<p>'+msg.message+'</p>');
                     okmsg = true;
@@ -551,6 +654,8 @@ $(document).ready( function() {
         var message = { 'id' : pathId, 'orgFilterId' : orgFilterId, 'dstFilterId' : dstFilterId, 
                         'orgWriterId' : orgWriterId, 'dstReaderId' : dstReaderId, 'midFiltersIds' : midFiltersIds };
         lmsPaths.push(message);
+        console.log("NEW PATH")
+        console.log(message)
         $.ajax({
             type: 'POST',
             async: false,
@@ -560,6 +665,7 @@ $(document).ready( function() {
             traditional: true,
             success : function(msg) {
                 if(!msg.error){
+                    console.log("CREATE PATH");
                     console.log(msg.message);
                     $("#state").append('<p>'+msg.message+'</p>');
                     okmsg = true;
@@ -584,6 +690,7 @@ $(document).ready( function() {
             success : function(msg) {
                 if(!msg.error){
                     lmsState = msg.message;
+                    console.log("STATE");
                     console.log(lmsState);
                     return true;
                 } else {
@@ -642,4 +749,3 @@ $(document).ready( function() {
     };
 
 });
-

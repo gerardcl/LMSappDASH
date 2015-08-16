@@ -539,13 +539,13 @@ $(document).ready( function() {
                 console.log("VIDEO MASTER PATH")
                 if(lmsInput.medium == 'video'){
                     console.log("VIDEO")
-                    createPath(vMasterPathId, receiverId, dashId, lmsInput.params.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);
+                    createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);
                     configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                     vDstReaderId++;
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHv")
-                    createPath(vMasterPathId, receiverId, dashId, lmsInput.videoParams.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);                    
+                    createPath(lmsInput.videoParams.subsessions[0].port, receiverId, dashId, lmsInput.videoParams.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                     vDstReaderId++;
@@ -566,13 +566,13 @@ $(document).ready( function() {
                 console.log("AUDIO MASTER PATH")
                 if(lmsInput.medium == 'audio'){
                     console.log("AUDIO")
-                    createPath(aMasterPathId, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);
+                    createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     aDstReaderId++; 
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHa")
-                    createPath(aMasterPathId, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);                    
+                    createPath(lmsInput.audioParams.subsessions[0].port, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     aDstReaderId++; 

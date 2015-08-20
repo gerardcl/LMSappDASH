@@ -8,8 +8,8 @@ LiveMediaStreamer web application example for DASH streaming
         git clone https://github.com/ua-i2cat/LMSappDASH /path/to/LMSappDASH
         
 ##Requirements 
-1. [LMStoREST](https://github.com/ua-i2cat/LMStoREST) installed and running
-2. [liveMediaStreamer](https://github.com/ua-i2cat/liveMediaStreamer) running
+1. [liveMediaStreamer](https://github.com/ua-i2cat/liveMediaStreamer/wiki) installed and running
+2. [LMStoREST](https://github.com/ua-i2cat/LMStoREST/wiki) installed and running
 3. HTTP server (e.g.: nginx) installed and running. 
 
 

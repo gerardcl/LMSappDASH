@@ -172,8 +172,6 @@ $(document).ready( function() {
                 'videoParams' : { 'subsessions' : [ { } ] },
                 'audioParams' : { 'subsessions' : [ { } ] }
             };  
-            console.log("TESTING");
-            console.log(lmsInput);          
             addAlertSuccess('Success setting network input params');
             $("#view").load("./app/views/dasher.html");
         } else {
@@ -412,9 +410,9 @@ $(document).ready( function() {
                         if(lmsState.filters[k].type == "demuxer"){
                             for(var j = 0; j < lmsState.filters[k].streams.length; j++){
                                 switch (lmsState.filters[k].streams[j].type){
-                                    case 0:
+                                    case 1:
                                         createFilter(vDecoderId,'videoDecoder');
-                                        if ( j > 1) {
+                                        if ( lmsState.filters[k].streams.length > 1) {
                                             lmsInput.medium = 'both';
                                             lmsInput.videoParams.subsessions[0].port = lmsState.filters[k].streams[j].wId;
                                         }
@@ -424,9 +422,9 @@ $(document).ready( function() {
                                         }
                                         okmsg = true;
                                         break;
-                                    case 1:
+                                    case 0:
                                         createFilter(aDecoderId,'audioDecoder');
-                                        if ( j > 1) {
+                                        if ( lmsState.filters[k].streams.length > 1) {
                                             lmsInput.medium = 'both';
                                             lmsInput.audioParams.subsessions[0].port = lmsState.filters[k].streams[j].wId;
                                         }
@@ -487,8 +485,6 @@ $(document).ready( function() {
                         }
                     }
                 }
-                console.log("RTSP")
-                console.log(lmsInput)
                 break;
             case 'rtp':
                 switch(lmsInput.medium){
@@ -533,7 +529,7 @@ $(document).ready( function() {
             createFilter(lmsVideos[i].id, 'videoResampler');
             createFilter(lmsVideos[i].id + 1, 'videoEncoder');
             configureFilter(lmsVideos[i].id, 'configure', { "width" : lmsVideos[i].width, "height" : lmsVideos[i].height, "discartPeriod" : 0, "pixelFormat" : 2 });
-            configureFilter(lmsVideos[i].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[i].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 25,
+            configureFilter(lmsVideos[i].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[i].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
                                                         "threads" : 4, "annexb" : true, "preset" : "superfast" });
             if(i === 0){
                 console.log("VIDEO MASTER PATH")
@@ -560,26 +556,26 @@ $(document).ready( function() {
         }
         for(i = 0; i < lmsAudios.length; i++){
             createFilter(lmsAudios[i].id, 'audioEncoder');
-            configureFilter(lmsAudios[i].id, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(lmsAudios[i].sampleRate / 1000), 
+            configureFilter(lmsAudios[i].id, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(lmsAudios[i].sampleRate), 
                                                             "channels" : lmsAudios[i].channels, "bitrate" : lmsAudios[i].bitRate });
             if(i === 0){
                 console.log("AUDIO MASTER PATH")
                 if(lmsInput.medium == 'audio'){
                     console.log("AUDIO")
-                    createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);
+                    createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId, [aDecoderId, lmsAudios[i].id]);
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     aDstReaderId++; 
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHa")
-                    createPath(lmsInput.audioParams.subsessions[0].port, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId++, [aDecoderId, lmsAudios[i].id]);                    
+                    createPath(lmsInput.audioParams.subsessions[0].port, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId, [aDecoderId, lmsAudios[i].id]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     aDstReaderId++; 
                 }
             } else {
                 console.log("AUDIO SLAVE PATH")
-                createPath(aMasterPathId + i, aDecoderId, dashId, -1, aDstReaderId++, [lmsAudios[i].id]);
+                createPath(aMasterPathId + i, aDecoderId, dashId, -1, aDstReaderId, [lmsAudios[i].id]);
                 configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                 aDstReaderId++; 

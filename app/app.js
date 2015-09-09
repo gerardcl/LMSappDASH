@@ -3,6 +3,7 @@ $(document).ready( function() {
     // APP. CONFIG. PARAMETERS
     //////////////////////////////////////////// 
     var apiURI = null;
+    var sHost = null, sPort = null;
 	var lmsInstance = null, 
         lmsState = null,
 		lmsInput = null,
@@ -83,6 +84,8 @@ $(document).ready( function() {
                             lmsInstance = null;
                             addAlertSuccess(msg.message);
                             apiURI = null;
+                            sHost = null;
+                            sPort = null;
                             $("#disconnectButton").addClass("hidden");
                             $("#state").html('');
                             unloadPlayer();
@@ -109,6 +112,9 @@ $(document).ready( function() {
         };
         var apiHost = form.find( "input[id='api-host']" ).val();
         var apiPort = form.find( "input[id='api-port']" ).val();
+
+        sHost = form.find( "input[id='server-host']" ).val();
+        sPort = form.find( "input[id='server-port']" ).val();
 
         var uri = 'http://'+apiHost+':'+apiPort+'/api/connect';
         $.ajax({
@@ -381,10 +387,12 @@ $(document).ready( function() {
         $("#state").html('');
         $("#dashPlayerURI").removeClass("hidden");
         $("#dashPlayerBtn").removeClass("hidden");
+        console.log('Dash segments served at: http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd');
+        document.getElementById("segmentsURI").innerHTML = 'Dash segments served at: http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd <br>';
         $("#dashPlayerBtn").click(function () { 
             $("#player").attr("src", $("#dashPlayerURI").val());
             $("#player").removeClass("hidden");
-        });
+       });
     };
 
     function unloadPlayer(){
@@ -392,6 +400,7 @@ $(document).ready( function() {
         $("#dashPlayerBtn").addClass("hidden");        
         $("#player").attr("src", '');
         $("#player").addClass("hidden");
+        document.getElementById("segmentsURI").innerHTML = '';
     }
 
     function setReceiverAndDecoders() {

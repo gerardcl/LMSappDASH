@@ -1,6 +1,15 @@
+<script>
+$(document).ready( function() {
+    var host = window.document.location.hostname;
+    var port = window.document.location.port;
+    document.getElementById("defaultServer").innerHTML = 'host: '+host+', and port: '+ (port == '' ? '80': port);
+    document.getElementById("server-host").value = host;
+    document.getElementById("server-port").value = (port == '' ? '80': port);
+});
+</script>
 <div class="row">
   <div class="col-sm-12">
-    <h3>First of all, test API and LiveMediaStreamer instance connectivity</h3>
+    <h3>First of all, set API and LiveMediaStreamer instance connectivity</h3>
   </div>
 </div> 
 <div class="row">
@@ -25,6 +34,17 @@
     <div class="form-group">
       <div class="col-sm-12"> 
         <input type="text" class="form-control" id='lms-port' placeholder="Enter LMS port (e.g.: 7777)" required="true">
+      </div>
+    </div>
+    <h4>Server host/IP and port (proposed configuration is <span id="defaultServer"></span>)</h4>
+    <div class="form-group">
+      <div class="col-sm-12">
+        <input type="text" class="form-control" id='server-host' placeholder="Enter Server host (e.g.: 127.0.0.1)" required="true">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-12"> 
+        <input type="text" class="form-control" id='server-port' placeholder="Enter Server port (e.g.: 80)" required="true">
       </div>
     </div>
     <div class="form-group"> 

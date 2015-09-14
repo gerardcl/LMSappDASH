@@ -1,100 +1,40 @@
-<div class="row">
+<div class="row specialRow">
   <div class="col-sm-12">
-    <h3>Now, configure the dasher</h3>
+    <div class="row">
+    <div class="col-sm-12">
+      <h5>Video Representations  
+        <button type="button" data-dismiss="modal" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addVideoModal">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </button> 
+      </h5>
+    </div>
+    </div>
+    <div class="row"> 
+      <div class="col-sm-12" id="stateVidRep">
+      </div>
+    </div>
   </div>
 </div> 
-<h4>First, add representations</h4>
-<div class="row">
-  <div class="col-sm-12">
-    <div class="btn-group" role="group">
-      <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#addRepresentationModal"><span class="glyphicon glyphicon-plus"></span> Add representation</button>
-    </div>
-  </div>
-</div> 
-<p></p>
-<div class="row">
-  <div class="col-sm-12" id="videoDashRepresentations">
-  </div>
-</div>
-<p></p>
-<div class="row">
-  <div class="col-sm-12" id="audioDashRepresentations">
-  </div>
-</div>
-<br>
-<h4>Finally, set dasher params</h4>
-<div class="row">
-  <form class="form-horizontal" role="form" id="dasherForm">
-    <div class="form-group">
-      <div class="col-sm-3">
-        <h5>Server files folder</h5>
-      </div>   
-      <div class="col-sm-9">
-        <input type="text" class="form-control" id='dashFolder' placeholder="e.g.: /tmp/dashSegments" required="true">
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-3">
-        <h5>Files base name</h5>
-      </div>    
-      <div class="col-sm-9"> 
-        <input type="text" class="form-control" id='baseName' placeholder="e.g.: dash" required="true">
-      </div>
-    </div> 
-    <div class="form-group">
-      <div class="col-sm-3">
-        <h5>Number of segments</h5>
-      </div>    
-      <div class="col-sm-9">
-        <input type="text" class="form-control" id='maxSeg' placeholder="e.g.: 6" required="true">
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-3">
-        <h5>Segments duration (seconds)</h5>
-      </div>    
-      <div class="col-sm-9">
-        <input type="text" class="form-control" id='segDurInSec' placeholder="e.g.: 4" required="true">
-      </div>
-    </div>    
-    <div class="form-group">
-      <div class="col-sm-3">
-        <h5>Minimum buffer time (seconds)</h5>
-      </div>    
-      <div class="col-sm-9">
-        <input type="text" class="form-control" id='minBuffTime' placeholder="e.g.: 2" required="true">
-      </div>
-    </div>
-    <div class="form-group"> 
-      <div class="col-sm-12">
-        <input id="connectBtn" type="submit" class="btn btn-default" value="Start DASHER!"></input>
-      </div>
-    </div>
-  </form>
-</div>    
 
-<!-- Modal window - form: addRepresentationModal -->
-<div class="modal fade" id="addRepresentationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Select representation media type</h4>
-      </div>
-      <div class="modal-body">
-      <!-- The form is placed inside the body of modal -->
-        <div class="row">
-          <div class="col-sm-6">
-            <button data-dismiss="modal" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addAudioModal"><span class="glyphicon glyphicon-plus"></span> Add audio </button>
-          </div>
-          <div class="col-sm-6">
-            <button data-dismiss="modal" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addVideoModal"><span class="glyphicon glyphicon-plus"></span> Add video</button>
-          </div>
-        </div>
+<div class="row specialRow">
+  <div class="col-sm-12">
+    <div class="row">
+    <div class="col-sm-12">
+      <h5>Audio Representations
+        <button type="button" data-dismiss="modal" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addAudioModal">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </button>  
+      </h5>
+    </div> 
+    </div>
+    <div class="row"> 
+      <div class="col-sm-12" id="stateAudRep">
       </div>
     </div>
   </div>
-</div>
+</div> 
+
+
 
 <!-- Modal window - form: addAudioModal -->
 <div class="modal fade" id="addAudioModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

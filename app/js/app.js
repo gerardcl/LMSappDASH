@@ -14,10 +14,10 @@ $(document).ready( function() {
     var receiverId = 1000
     var dashId = 1001;
     var vDecoderId = 2000;
-    var aDecoderId = 2001;
-    var vId = 3000;
+    var aDecoderId = 3000;
+    var vId = 4000;
     var vCount = 0;
-    var aId = 4000;
+    var aId = 5000;
     var aCount = 0;
     var vMasterPathId = 10000;
     var aMasterPathId = 11000;
@@ -88,7 +88,7 @@ $(document).ready( function() {
                             sPort = null;
                             $("#disconnectButton").addClass("hidden");
                             $("#state").html('');
-                            unloadPlayer();
+                            unloadDasherState();
                             $("#view").load("./app/views/instance.html");
                         } else {
                             addAlertError(msg.error);
@@ -107,8 +107,8 @@ $(document).ready( function() {
     ////////////////////////////////////////////
     function connectForm(form) {
         var message = { 
-            'host' : form.find( "input[id='lms-host']" ).val(),
-            'port' : form.find( "input[id='lms-port']" ).val()
+            'host' : form.find( "input[id='server-host']" ).val(),
+            'port' : 7777
         };
         var apiHost = form.find( "input[id='api-host']" ).val();
         var apiPort = form.find( "input[id='api-port']" ).val();
@@ -313,7 +313,7 @@ $(document).ready( function() {
                 "<div class=\"col-sm-3\"><strong>Video representation "+(++vCount)+"</strong></div>" +
                 "<div class=\"col-sm-3\">Width: "+width+" px</div>"+
                 "<div class=\"col-sm-3\">Height: "+height+" px</div>"+
-                "<div class=\"col-sm-3\">Bit rate: "+bitRate+" bps</div>"+
+                "<div class=\"col-sm-3\">Bitrate: "+bitRate+" bps</div>"+
               "</div>" 
             );
             vId += 2;
@@ -340,9 +340,9 @@ $(document).ready( function() {
             $( "#audioDashRepresentations" ).append( 
               "<div class=\"row specialRow\">"+
                 "<div class=\"col-sm-3\"><strong>Audio representation  "+(++aCount)+"</strong></div>"+
-                "<div class=\"col-sm-3\">Sample rate: "+sampleRate+" Hz </div>"+
+                "<div class=\"col-sm-3\">Samplerate: "+sampleRate+" Hz </div>"+
                 "<div class=\"col-sm-3\">Channels: "+channels+" </div>"+
-                "<div class=\"col-sm-3\">Bit rate: "+bitRate+" bps </div>"+
+                "<div class=\"col-sm-3\">Bitrate: "+bitRate+" bps </div>"+
               "</div>" 
             );
             aId += 2;
@@ -366,7 +366,7 @@ $(document).ready( function() {
                 "baseName":baseName,
                 "segDurInSec":parseInt(segDurInSec)
             };
-            $("#view").load("./app/views/state.html");
+            $("#view").html('');
 
             setReceiverAndDecoders();
 
@@ -376,30 +376,66 @@ $(document).ready( function() {
 
             addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED!');
 
-            setTimeout(loadPlayer(),4000);
+            setTimeout(loadDasherState(),4000);
         }
     }; 
      
     ////////////////////////////////////////////
     // SPECIFIC SCENARIO/UI METHODS
     ////////////////////////////////////////////
-    function loadPlayer() {
+    function loadDasherState() {
         $("#state").html('');
-        $("#dashPlayerURI").removeClass("hidden");
-        $("#dashPlayerBtn").removeClass("hidden");
-        console.log('Dash segments served at: http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd');
-        document.getElementById("segmentsURI").innerHTML = 'Dash segments served at: http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd <br>';
-        $("#dashPlayerBtn").click(function () { 
-            $("#player").attr("src", $("#dashPlayerURI").val());
-            $("#player").removeClass("hidden");
-       });
+        $("#dasherState").load("./app/views/dasherState.html");
+        console.log('DASHer URI for MPEG-DASH players<br> http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd');
+        document.getElementById("segmentsURI").innerHTML = 'DASHer URI for MPEG-DASH players<br> http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd <br>';
+        loadCurrentRepresentations();
     };
 
-    function unloadPlayer(){
-        $("#dashPlayerURI").addClass("hidden");
-        $("#dashPlayerBtn").addClass("hidden");        
-        $("#player").attr("src", '');
-        $("#player").addClass("hidden");
+    function loadCurrentRepresentations(){
+        for(var i = 0; i < lmsVideos.length; i++){
+            $( "#stateVidRep" ).append( 
+              "<div class=\"row\"> "+
+                "<div class=\"col-sm-1\"><strong>"+lmsVideos[i].id+"</strong></div>" +
+                "<div class=\"col-sm-3\">Width: "+lmsVideos[i].width+" px</div>"+
+                "<div class=\"col-sm-3\">Height: "+lmsVideos[i].height+" px</div>"+
+                "<div class=\"col-sm-3\">Bitrate: "+lmsVideos[i].bitRate+" bps</div>"+
+                "<div class=\"col-sm-1\">"+
+                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-warning btn-xs\" data-toggle=\"modal\" data-target=\"#editVideoModal\">"+
+                        "<span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>"+
+                    "</button>"+
+                "</div>"+
+                "<div class=\"col-sm-1\">"+
+                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-danger btn-xs\" data-toggle=\"modal\" data-target=\"#rmVideoModal\">"+
+                        "<span class=\"glyphicon glyphicon-minus\" aria-hidden=\"true\"></span>"+
+                    "</button>"+
+                "</div>"+
+              "</div>" 
+            );
+        };
+        for(var i = 0; i < lmsAudios.length; i++){
+            $( "#stateAudRep" ).append( 
+              "<div class=\"row\">"+
+                "<div class=\"col-sm-1\"><strong>"+lmsAudios[i].id+"</strong></div>"+
+                "<div class=\"col-sm-3\">Samplerate: "+lmsAudios[i].sampleRate+" Hz </div>"+
+                "<div class=\"col-sm-3\">Channels: "+lmsAudios[i].channels+" </div>"+
+                "<div class=\"col-sm-3\">Bitrate: "+lmsAudios[i].bitRate+" bps </div>"+
+                "<div class=\"col-sm-1\">"+
+                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-warning btn-xs\" data-toggle=\"modal\" data-target=\"#editAudioModal\">"+
+                        "<span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>"+
+                    "</button>"+
+                "</div>"+
+                "<div class=\"col-sm-1\">"+
+                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-danger btn-xs\" data-toggle=\"modal\" data-target=\"#rmAudioModal\">"+
+                        "<span class=\"glyphicon glyphicon-minus\" aria-hidden=\"true\"></span>"+
+                    "</button>"+
+                "</div>"+
+              "</div>" 
+            );
+        };        
+    }
+
+    function unloadDasherState(){
+        $("#dasherState").html('');
         document.getElementById("segmentsURI").innerHTML = '';
     }
 

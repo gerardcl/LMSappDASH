@@ -8,10 +8,6 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="./style/app.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        <script src="https://github.com/makeusabrew/bootbox/releases/download/v4.4.0/bootbox.min.js"></script>
-        <script src="./app/app.js"></script>
     </head>
 
     <body>
@@ -52,9 +48,9 @@
         <div class="row">
             <div class="col-sm-offset-3 col-sm-6" id="segmentsURI"></div>
         </div>
+        <div class = "row">&nbsp;</div>
         <div class="row">
-            <div class="col-sm-offset-3 col-sm-3"><input type="text" class="form-control hidden" id='dashPlayerURI' placeholder="http://dashif.org/reference/players/javascript/1.4.0/samples/dash-if-reference-player/index.html"></input></div>
-            <div class="col-sm-3"><button class="btn btn-default hidden" id="dashPlayerBtn">Load player</button></div>
+            <div class="col-sm-12" id="dasherState"></div>
         </div>
     </div>
     <br>
@@ -76,6 +72,10 @@
     </div>
 
     </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://github.com/makeusabrew/bootbox/releases/download/v4.4.0/bootbox.min.js"></script>
+    <script src="./app/js/app.js"></script>
     <script>
     // FORCE TO ALERT WHEN RELOADING...
     window.onbeforeunload = function (e) {

@@ -16,35 +16,37 @@ $(document).ready( function() {
   <form class="form-horizontal" role="form" id="connectForm">
     <h4>API connectivity parameters</h4>
     <div class="form-group">
-      <div class="col-sm-12">
-        <input type="text" class="form-control" id='api-host' placeholder="Enter API host (e.g.: 127.0.0.1)" required="true" autofocus>
+      <div class="col-sm-3">
+        <h5>API hostname</h5>
+      </div>
+      <div class="col-sm-9">
+        <input type="text" class="form-control" id='api-host' placeholder="e.g.: 127.0.0.1" required="true" autofocus>
       </div>
     </div>
     <div class="form-group">
-      <div class="col-sm-12"> 
-        <input type="text" class="form-control" id='api-port' placeholder="Enter API port (e.g.: 8080)" required="true">
+      <div class="col-sm-3"> 
+        <h5>API port</h5>
+      </div>
+      <div class="col-sm-9"> 
+        <input type="text" class="form-control" id='api-port' placeholder="e.g.: 8080" required="true">
       </div>
     </div> 
-    <h4>LMS connectivity parameters</h4>
+    <h4>Server host/IP and port</h4> 
+    <h6>default set to <span id="defaultServer"></span></h6>
     <div class="form-group">
-      <div class="col-sm-12">
-        <input type="text" class="form-control" id='lms-host' placeholder="Enter LMS host (e.g.: 127.0.0.1)" required="true">
+      <div class="col-sm-3">
+        <h5>Server/App hostname</h5>
+      </div>
+      <div class="col-sm-9">
+        <input type="text" class="form-control" id='server-host' placeholder="e.g.: 127.0.0.1" required="true">
       </div>
     </div>
     <div class="form-group">
-      <div class="col-sm-12"> 
-        <input type="text" class="form-control" id='lms-port' placeholder="Enter LMS port (e.g.: 7777)" required="true">
-      </div>
-    </div>
-    <h4>Server host/IP and port (proposed configuration is <span id="defaultServer"></span>)</h4>
-    <div class="form-group">
-      <div class="col-sm-12">
-        <input type="text" class="form-control" id='server-host' placeholder="Enter Server host (e.g.: 127.0.0.1)" required="true">
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-12"> 
-        <input type="text" class="form-control" id='server-port' placeholder="Enter Server port (e.g.: 80)" required="true">
+      <div class="col-sm-3"> 
+        <h5>Server/App port</h5>
+      </div>    
+      <div class="col-sm-9"> 
+        <input type="text" class="form-control" id='server-port' placeholder="e.g.: 80" required="true">
       </div>
     </div>
     <div class="form-group"> 

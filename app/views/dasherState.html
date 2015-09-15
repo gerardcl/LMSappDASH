@@ -1,31 +1,45 @@
-<div class="row specialRow">
+<div class="row specialRow" id="dashVideosRep">
   <div class="col-sm-12">
     <div class="row">
     <div class="col-sm-12">
-      <h5>Video Representations  
-        <button type="button" data-dismiss="modal" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addVideoModal">
+      <h5><strong> Video Representations </strong> 
+        <button type="button" data-dismiss="modal" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addVideoModalDyn">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
         </button> 
       </h5>
     </div>
     </div>
+    <div class="row">
+      <div class="col-sm-2"><strong>ID</strong></div>
+      <div class="col-sm-3"><strong>Width (px)</strong></div>
+      <div class="col-sm-3"><strong>Height (px)</strong></div>
+      <div class="col-sm-3"><strong>Bitrate (bps)</strong></div>
+      <div class="col-sm-1"><strong>&nbsp;</strong></div>
+    </div>
     <div class="row"> 
-      <div class="col-sm-12" id="stateVidRep">
+      <div class="col-sm-12" id="stateVidRep"> 
       </div>
     </div>
   </div>
 </div> 
 
-<div class="row specialRow">
+<div class="row specialRow" id="dashAudiosRep">
   <div class="col-sm-12">
     <div class="row">
     <div class="col-sm-12">
-      <h5>Audio Representations
-        <button type="button" data-dismiss="modal" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addAudioModal">
+      <h5><strong> Audio Representations </strong>
+        <button type="button" data-dismiss="modal" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addAudioModalDyn">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
         </button>  
       </h5>
     </div> 
+    </div>
+    <div class="row">
+      <div class="col-sm-2"><strong>ID</strong></div>
+      <div class="col-sm-3"><strong>Samplerate (Hz)</strong></div>
+      <div class="col-sm-3"><strong>Channels</strong></div>
+      <div class="col-sm-3"><strong>Bitrate (bps)</strong></div>
+      <div class="col-sm-1"><strong>&nbsp;</strong></div>
     </div>
     <div class="row"> 
       <div class="col-sm-12" id="stateAudRep">
@@ -34,10 +48,8 @@
   </div>
 </div> 
 
-
-
 <!-- Modal window - form: addAudioModal -->
-<div class="modal fade" id="addAudioModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="addAudioModalDyn" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content well">
       <div class="modal-header">
@@ -48,7 +60,7 @@
       <!-- The form is placed inside the body of modal -->
         <div class="row">
           <div class="col-sm-12">
-            <form class="form-horizontal" data-async role="form" data-target="#addAudioModal" id="addAudioDASHForm">
+            <form class="form-horizontal" data-async role="form" data-target="#addAudioModalDyn" id="addAudioModalDynForm">
               <div class="form-group">
                 <div class="col-sm-3">
                   <h5>Samplerate (Hz)</h5>
@@ -82,14 +94,14 @@
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal">Cancel</button>
-        <button form="addAudioDASHForm" class="btn btn-default" type="submit">Add</button>
+        <button form="addAudioModalDynForm" class="btn btn-default" type="submit">Add</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Modal window - form: addVideoModal -->
-<div class="modal fade" id="addVideoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="addVideoModalDyn" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content well">
       <div class="modal-header">
@@ -100,7 +112,7 @@
       <!-- The form is placed inside the body of modal -->
         <div class="row">
           <div class="col-sm-12">
-            <form class="form-horizontal" data-async role="form" data-target="#addVideoModal" id="addVideoDASHForm">
+            <form class="form-horizontal" data-async role="form" data-target="#addVideoModalDyn" id="addVideoModalDynForm">
               <div class="form-group">
                 <div class="col-sm-3">
                   <h5>Width (pixels)</h5>
@@ -134,7 +146,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal">Cancel</button>
-        <button form="addVideoDASHForm" class="btn btn-default" type="submit">Add</button>
+        <button form="addVideoModalDynForm" class="btn btn-default" type="submit">Add</button>
       </div>
     </div>
   </div>

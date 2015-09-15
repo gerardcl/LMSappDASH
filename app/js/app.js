@@ -32,6 +32,7 @@ $(document).ready( function() {
     $( document ).on( "submit", "form", function(event) {
         event.preventDefault(); // To prevent following the link (optional)
         var form = $(this);
+        console.log(form.context.id);
         switch (form.context.id){
             case 'connectForm':
                 connectForm(form);
@@ -60,15 +61,27 @@ $(document).ready( function() {
             case 'dasherForm':
                 startDASHER(form);
                 break;
+            case 'addVideoModalDynForm':
+                addDynVideo(form);
+                break;
+            case 'addAudioModalDynForm':
+                addDynAudio(form);
+                break;  
+            case 'editVideoDashForm':
+                editVideo(form);
+                break;
+            case 'editAudioDashForm':
+                editAudio(form);
+                break;       
+            case 'editDashVideoModalForm':
+                setEditVideo(form);
+                break;
+            case 'editDashAudioModalForm':
+                setEditAudio(form);
+                break;   
             default:
                 addAlertError('ERROR: no form available');
         }
-        console.log(lmsInstance);
-        console.log(lmsInput);
-        console.log(lmsVideos);
-        console.log(lmsAudios);
-        console.log(lmsDash);
-        console.log(lmsPaths);
     });
 
     $('#disconnectButton').on('click', function(event) {
@@ -376,62 +389,136 @@ $(document).ready( function() {
 
             addAlertSuccess('DASHER SUCCESSFULLY CONFIGURED!');
 
-            setTimeout(loadDasherState(),4000);
+            setTimeout(loadDasherState(),5000);
         }
     }; 
-     
+
+    function editVideo (form) {
+        console.log("EDIT VIDEO FORM")
+        var id = form.find( "div[id='vidid']" ).text();
+        var width = form.find( "div[id='vidw']" ).text();
+        var height = form.find( "div[id='vidh']" ).text();
+        var bitrate = form.find( "div[id='vidb']" ).text();
+        console.log(lmsVideos[id].id);
+        console.log(width);
+        console.log(height);
+        console.log(bitrate);
+        addEditVideoModal(id,width,height,bitrate);
+        $('#editDashVideoModal').modal({show:true});
+    };
+
+    function editAudio (form) {
+        console.log("EDIT AUDIO FORM")
+        var id = form.find( "div[id='audid']" ).text();
+        var samplerate = form.find( "div[id='auds']" ).text();
+        var channels = form.find( "div[id='audc']" ).text();
+        var bitrate = form.find( "div[id='audb']" ).text();
+        console.log(lmsAudios[id].id);
+        console.log(samplerate);
+        console.log(channels);
+        console.log(bitrate);    
+        addEditAudioModal(id,samplerate,channels,bitrate);
+        $('#editDashAudioModal').modal({show:true});
+    }
+
+    function setEditVideo (form) {
+        var idinternal = form.find( "input[name='videoidinternal']" ).text();
+        var id = form.find( "input[name='videoid']" ).text();
+        var width = form.find( "input[name='width']" ).text();
+        var height = form.find( "input[name='height']" ).text();
+        var bitrate = form.find( "input[name='bitRate']" ).text();
+        console.log(id);
+        console.log(width);
+        console.log(height);
+        console.log(bitrate);
+
+        configureFilter(idinternal, 'configure', { "width" : width, "height" : height, "discartPeriod" : 0, "pixelFormat" : 2 });
+        configureFilter(idinternal + 1, 'configure', { "bitrate" : parseInt( bitrate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
+                                                        "threads" : 4, "annexb" : true, "preset" : "superfast" });
+        configureFilter(dashId, 'setBitrate', { "id" : lmsVideos[id].dstR, "bitrate": bitrate });
+
+        lmsVideos[id].width = width;
+        lmsVideos[id].height = height;
+        lmsVideos[id].bitRate = bitrate;
+
+        loadCurrentRepresentations();
+    };
+
+    function setEditAudio (form) {
+        var idinternal = form.find( "input[name='audioidinternal']" ).text();
+        var id = form.find( "input[name='audioid']" ).text();
+        var samplerate = form.find( "input[name='sampleRate']" ).text();
+        var channels = form.find( "input[name='channels']" ).text();
+        var bitrate = form.find( "input[name='bitRate']" ).text();
+        console.log(id);
+        console.log(samplerate);
+        console.log(channels);
+        console.log(bitrate);    
+
+        configureFilter(idinternal, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(samplerate), 
+                                                            "channels" : channels, "bitrate" : bitrate });
+        configureFilter(dashId, 'setBitrate', { "id" : lmsAudios[id].dstR, "bitrate": bitrate });
+
+        lmsAudios[id].sampleRate = samplerate;
+        lmsAudios[id].channels = channels;
+        lmsAudios[id].bitRate = bitrate;
+
+        loadCurrentRepresentations();
+    }
     ////////////////////////////////////////////
     // SPECIFIC SCENARIO/UI METHODS
     ////////////////////////////////////////////
     function loadDasherState() {
         $("#state").html('');
-        $("#dasherState").load("./app/views/dasherState.html");
-        console.log('DASHer URI for MPEG-DASH players<br> http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd');
-        document.getElementById("segmentsURI").innerHTML = 'DASHer URI for MPEG-DASH players<br> http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd <br>';
-        loadCurrentRepresentations();
+        $("#dasherState").load("./app/views/dasherState.html", function(res, stat, xhr) {
+            console.log("DASHER STATE");
+            console.log('DASHer URI for MPEG-DASH players<br> http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd');
+            $("#segmentsURI").html('DASHer URI for MPEG-DASH players<br> http://'+sHost+':'+(sPort == '' ? '80': sPort)+'/lmsDasher/'+lmsDash.baseName+'.mpd <br>');
+            loadCurrentRepresentations();
+        });
     };
 
-    function loadCurrentRepresentations(){
-        for(var i = 0; i < lmsVideos.length; i++){
-            $( "#stateVidRep" ).append( 
-              "<div class=\"row\"> "+
-                "<div class=\"col-sm-1\"><strong>"+lmsVideos[i].id+"</strong></div>" +
-                "<div class=\"col-sm-3\">Width: "+lmsVideos[i].width+" px</div>"+
-                "<div class=\"col-sm-3\">Height: "+lmsVideos[i].height+" px</div>"+
-                "<div class=\"col-sm-3\">Bitrate: "+lmsVideos[i].bitRate+" bps</div>"+
-                "<div class=\"col-sm-1\">"+
-                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-warning btn-xs\" data-toggle=\"modal\" data-target=\"#editVideoModal\">"+
-                        "<span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>"+
-                    "</button>"+
-                "</div>"+
-                "<div class=\"col-sm-1\">"+
-                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-danger btn-xs\" data-toggle=\"modal\" data-target=\"#rmVideoModal\">"+
-                        "<span class=\"glyphicon glyphicon-minus\" aria-hidden=\"true\"></span>"+
-                    "</button>"+
-                "</div>"+
-              "</div>" 
-            );
-        };
-        for(var i = 0; i < lmsAudios.length; i++){
-            $( "#stateAudRep" ).append( 
-              "<div class=\"row\">"+
-                "<div class=\"col-sm-1\"><strong>"+lmsAudios[i].id+"</strong></div>"+
-                "<div class=\"col-sm-3\">Samplerate: "+lmsAudios[i].sampleRate+" Hz </div>"+
-                "<div class=\"col-sm-3\">Channels: "+lmsAudios[i].channels+" </div>"+
-                "<div class=\"col-sm-3\">Bitrate: "+lmsAudios[i].bitRate+" bps </div>"+
-                "<div class=\"col-sm-1\">"+
-                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-warning btn-xs\" data-toggle=\"modal\" data-target=\"#editAudioModal\">"+
-                        "<span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>"+
-                    "</button>"+
-                "</div>"+
-                "<div class=\"col-sm-1\">"+
-                    "<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-danger btn-xs\" data-toggle=\"modal\" data-target=\"#rmAudioModal\">"+
-                        "<span class=\"glyphicon glyphicon-minus\" aria-hidden=\"true\"></span>"+
-                    "</button>"+
-                "</div>"+
-              "</div>" 
-            );
-        };        
+    function loadCurrentRepresentations(){            
+        $("#stateAudRep").html('');
+        $("#stateVidRep").html('');
+        if(lmsVideos.length > 0) {
+            for(var i = 0; i < lmsVideos.length; i++){
+                $("#stateVidRep").append( 
+                  "<form class=\"form-inline\ role=\"form\" id=\"editVideoDashForm\">"+
+                    "<div class=\"col-sm-2\" id=\"vidid\">"+i+"</div>" +
+                    "<div class=\"col-sm-3\" id=\"vidw\">"+lmsVideos[i].width+"</div>"+
+                    "<div class=\"col-sm-3\" id=\"vidh\">"+lmsVideos[i].height+"</div>"+
+                    "<div class=\"col-sm-3\" id=\"vidb\">"+lmsVideos[i].bitRate+"</div>"+
+                    "<div class=\"col-sm-1\">"+
+                        "<button type=\"submit\" class=\"btn btn-warning btn-xs\">"+
+                            "<span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>"+
+                        "</button>"+
+                    "</div>"+
+                  "</form>" 
+                );
+            };
+        } else {
+            $("#dashVideosRep").addClass("hidden");
+        }
+        if(lmsAudios.length > 0) {
+            for(var i = 0; i < lmsAudios.length; i++){
+                $("#stateAudRep").append( 
+                  "<form class=\"form-inline\" role=\"form\" id=\"editAudioDashForm\">"+
+                    "<div class=\"col-sm-2\" id=\"audid\">"+i+"</div>"+
+                    "<div class=\"col-sm-3\" id=\"auds\">"+lmsAudios[i].sampleRate+"</div>"+
+                    "<div class=\"col-sm-3\" id=\"audc\">"+lmsAudios[i].channels+"</div>"+
+                    "<div class=\"col-sm-3\" id=\"audb\">"+lmsAudios[i].bitRate+"</div>"+
+                    "<div class=\"col-sm-1\">"+
+                        "<button type=\"submit\" class=\"btn btn-warning btn-xs\">"+
+                            "<span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>"+
+                        "</button>"+
+                    "</div>"+
+                  "</form>" 
+                );
+            };    
+        } else {
+            $("#dashAudiosRep").addClass("hidden");           
+        }    
     }
 
     function unloadDasherState(){
@@ -583,12 +670,14 @@ $(document).ready( function() {
                     createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);
                     configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
+                    lmsVideos[i].dstR = vDstReaderId;
                     vDstReaderId++;
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHv")
                     createPath(lmsInput.videoParams.subsessions[0].port, receiverId, dashId, lmsInput.videoParams.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
+                    lmsVideos[i].dstR = vDstReaderId;
                     vDstReaderId++;
                 }
             } else {
@@ -596,6 +685,7 @@ $(document).ready( function() {
                 createPath(vMasterPathId + i, vDecoderId, dashId, -1, vDstReaderId, [lmsVideos[i].id, lmsVideos[i].id + 1]);
                 configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
+                lmsVideos[i].dstR = vDstReaderId;
                 vDstReaderId++;                
             }   
         }
@@ -610,12 +700,14 @@ $(document).ready( function() {
                     createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId, [aDecoderId, lmsAudios[i].id]);
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
+                    lmsAudios[i].dstR = aDstReaderId;
                     aDstReaderId++; 
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHa")
                     createPath(lmsInput.audioParams.subsessions[0].port, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId, [aDecoderId, lmsAudios[i].id]);                    
                     configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
+                    lmsAudios[i].dstR = aDstReaderId;
                     aDstReaderId++; 
                 }
             } else {
@@ -623,10 +715,126 @@ $(document).ready( function() {
                 createPath(aMasterPathId + i, aDecoderId, dashId, -1, aDstReaderId, [lmsAudios[i].id]);
                 configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
+                lmsAudios[i].dstR = aDstReaderId;
                 aDstReaderId++; 
             }   
         }
     };
+
+    function addEditVideoModal(id,width,height,bitrate){
+        $("#editModals").html('<!-- Modal window - form: addVideoModal -->'+
+        '<div class=\"modal fade\" id=\"editDashVideoModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">'+
+          '<div class=\"modal-dialog\">'+
+            '<div class=\"modal-content well\">'+
+              '<div class=\"modal-header\">'+
+                '<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>'+
+                '<h4 class=\"modal-title\">Edit video representation '+ id +'</h4>'+
+              '</div>'+
+              '<div class=\"modal-body\">'+
+              '<!-- The form is placed inside the body of modal -->'+
+                '<div class=\"row\">'+
+                  '<div class=\"col-sm-12\">'+
+                    '<form class=\"form-horizontal\" data-async role=\"form\" data-target=\"#editDashVideoModal\" id=\"editDashVideoModalForm\">'+
+                      '<div class=\"form-group\">'+
+                        '<div class=\"col-sm-3\">'+
+                          '<h5>Height (px)</h5>'+
+                        '</div>'+
+                        '<div class=\"col-sm-9\">'+
+                          '<input type=\"numeric\" class=\"form-control input-sm\" name=\"width\" placeholder=\"e.g.: 1920\" required=\"true\" value=\"'+width+'\">'+
+                          '<input type=\"hidden\" name=\"videoid\" value=\"'+lmsVideos[id].id+'\">'+   
+                          '<input type=\"hidden\" name=\"videoidinternal\" value=\"'+id+'\">'+   
+                        '</div>'+
+                      '</div>'+
+                      '<div class=\"row\">&nbsp;</div>'+
+                      '<div class=\"form-group\">'+
+                        '<div class=\"col-sm-3\">'+
+                          '<h5>Width (px)</h5>'+
+                        '</div>'+
+                        '<div class=\"col-sm-9\">'+
+                          '<input type=\"numeric\" class=\"form-control input-sm\" name=\"height\" placeholder=\"e.g.: 1080\" required=\"true\" value=\"'+height+'\">'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class=\"row\">&nbsp;</div>'+
+                      '<div class=\"form-group\">'+
+                        '<div class=\"col-sm-3\">'+
+                          '<h5>Bitrate (bps)</h5>'+
+                        '</div>'+
+                        '<div class=\"col-sm-9\">'+
+                          '<input type=\"numeric\" class=\"form-control input-sm\" name=\"bitRate\" placeholder=\"e.g.: 2000000\" required=\"true\" value=\"'+bitrate+'\">'+
+                        '</div>'+
+                      '</div> '+
+                      '<div class=\"row\">&nbsp;</div>'+
+                    '</form>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+              '<div class=\"modal-footer\">'+
+                '<button class=\"btn\" data-dismiss=\"modal\">Cancel</button>'+
+                '<button form=\"editDashVideoModalForm\" class=\"btn btn-default\" type=\"submit\">Edit</button>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'
+        );  
+    }
+
+    function addEditAudioModal(id,samplerate,channels,bitrate){
+        $("#editModals").html('<!-- Modal window - form: addAudioModal -->'+
+        '<div class=\"modal fade\" id=\"editDashAudioModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">'+
+          '<div class=\"modal-dialog\">'+
+            '<div class=\"modal-content well\">'+
+              '<div class=\"modal-header\">'+
+                '<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>'+
+                '<h4 class=\"modal-title\">Edit audio representation '+ id +'</h4>'+
+              '</div>'+
+              '<div class=\"modal-body\">'+
+              '<!-- The form is placed inside the body of modal -->'+
+                '<div class=\"row\">'+
+                  '<div class=\"col-sm-12\">'+
+                    '<form class=\"form-horizontal\" data-async role=\"form\" data-target=\"#editDashAudioModal\" id=\"editDashAudioModalForm\">'+
+                      '<div class=\"form-group\">'+
+                        '<div class=\"col-sm-3\">'+
+                          '<h5>Samplerate (Hz)</h5>'+
+                        '</div>'+
+                        '<div class=\"col-sm-9\">'+
+                          '<input type=\"numeric\" class=\"form-control input-sm\" name=\"sampleRate\" placeholder=\"e.g.: 48000\" required=\"true\" value=\"'+samplerate+'\">'+
+                          '<input type=\"hidden\" name=\"audioid\" value=\"'+lmsAudios[id].id+'\">'+   
+                          '<input type=\"hidden\" name=\"audioidinternal\" value=\"'+id+'\">'+   
+                        '</div>'+
+                      '</div>'+
+                      '<div class=\"row\">&nbsp;</div>'+
+                      '<div class=\"form-group\">'+
+                        '<div class=\"col-sm-3\">'+
+                          '<h5>Channels</h5>'+
+                        '</div>'+
+                        '<div class=\"col-sm-9\">'+
+                          '<input type=\"numeric\" class=\"form-control input-sm\" name=\"channels\" placeholder=\"e.g.: 2\" required=\"true\" value=\"'+channels+'\">'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class=\"row\">&nbsp;</div>'+
+                      '<div class=\"form-group\">'+
+                        '<div class=\"col-sm-3\">'+
+                          '<h5>Bitrate (bps)</h5>'+
+                        '</div>'+
+                        '<div class=\"col-sm-9\">'+
+                          '<input type=\"numeric\" class=\"form-control input-sm\" name=\"bitRate\" placeholder=\"e.g.: 192000\" required=\"true\" value=\"'+bitrate+'\">'+
+                        '</div>'+
+                      '</div> '+
+                      '<div class=\"row\">&nbsp;</div>'+
+                    '</form>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+              '<div class=\"modal-footer\">'+
+                '<button class=\"btn\" data-dismiss=\"modal\">Cancel</button>'+
+                '<button form=\"editDashAudioModalForm\" class=\"btn btn-default\" type=\"submit\">Edit</button>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'
+        );  
+    }
+
 
     ////////////////////////////////////////////
     // SPECIFIC API METHODS

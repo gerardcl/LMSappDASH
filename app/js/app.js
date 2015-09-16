@@ -422,46 +422,52 @@ $(document).ready( function() {
     }
 
     function setEditVideo (form) {
-        var idinternal = form.find( "input[name='videoidinternal']" ).text();
-        var id = form.find( "input[name='videoid']" ).text();
-        var width = form.find( "input[name='width']" ).text();
-        var height = form.find( "input[name='height']" ).text();
-        var bitrate = form.find( "input[name='bitRate']" ).text();
+        console.log("SET EDIT VIDEO");
+        var idinternal = form.find( "input[name='videoidinternal']" ).val();
+        var id = form.find( "input[name='videoid']" ).val();
+        var width = form.find( "input[name='width']" ).val();
+        var height = form.find( "input[name='height']" ).val();
+        var bitrate = form.find( "input[name='bitRate']" ).val();
         console.log(id);
+        console.log(idinternal);
         console.log(width);
         console.log(height);
         console.log(bitrate);
+        console.log(lmsVideos[idinternal].dstR);
 
-        configureFilter(idinternal, 'configure', { "width" : width, "height" : height, "discartPeriod" : 0, "pixelFormat" : 2 });
-        configureFilter(idinternal + 1, 'configure', { "bitrate" : parseInt( bitrate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
+        configureFilter(parseInt(id), 'configure', { "width" : parseInt(width), "height" : parseInt(height), "discartPeriod" : 0, "pixelFormat" : 2 });
+        configureFilter(parseInt(id) + 1, 'configure', { "bitrate" : parseInt( bitrate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
                                                         "threads" : 4, "annexb" : true, "preset" : "superfast" });
-        configureFilter(dashId, 'setBitrate', { "id" : lmsVideos[id].dstR, "bitrate": bitrate });
+        configureFilter(dashId, 'setBitrate', { "id" : lmsVideos[idinternal].dstR, "bitrate" : parseInt(bitrate) });
 
-        lmsVideos[id].width = width;
-        lmsVideos[id].height = height;
-        lmsVideos[id].bitRate = bitrate;
+        lmsVideos[idinternal].width = width;
+        lmsVideos[idinternal].height = height;
+        lmsVideos[idinternal].bitRate = bitrate;
 
         loadCurrentRepresentations();
     };
 
     function setEditAudio (form) {
-        var idinternal = form.find( "input[name='audioidinternal']" ).text();
-        var id = form.find( "input[name='audioid']" ).text();
-        var samplerate = form.find( "input[name='sampleRate']" ).text();
-        var channels = form.find( "input[name='channels']" ).text();
-        var bitrate = form.find( "input[name='bitRate']" ).text();
+        console.log("SET EDIT AUDIO");
+        var idinternal = form.find( "input[name='audioidinternal']" ).val();
+        var id = form.find( "input[name='audioid']" ).val();
+        var samplerate = form.find( "input[name='sampleRate']" ).val();
+        var channels = form.find( "input[name='channels']" ).val();
+        var bitrate = form.find( "input[name='bitRate']" ).val();
         console.log(id);
+        console.log(idinternal);
         console.log(samplerate);
         console.log(channels);
         console.log(bitrate);    
+        console.log(lmsAudios[idinternal].dstR);
 
-        configureFilter(idinternal, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(samplerate), 
-                                                            "channels" : channels, "bitrate" : bitrate });
-        configureFilter(dashId, 'setBitrate', { "id" : lmsAudios[id].dstR, "bitrate": bitrate });
+        configureFilter(parseInt(id), 'configure', { "codec" : 'aac', "sampleRate" : parseInt(samplerate), 
+                                                            "channels" : parseInt(channels), "bitrate" : parseInt(bitrate) });
+        configureFilter(dashId, 'setBitrate', { "id" : lmsAudios[idinternal].dstR, "bitrate" : parseInt(bitrate) });
 
-        lmsAudios[id].sampleRate = samplerate;
-        lmsAudios[id].channels = channels;
-        lmsAudios[id].bitRate = bitrate;
+        lmsAudios[idinternal].sampleRate = samplerate;
+        lmsAudios[idinternal].channels = channels;
+        lmsAudios[idinternal].bitRate = bitrate;
 
         loadCurrentRepresentations();
     }

@@ -428,12 +428,6 @@ $(document).ready( function() {
         var width = form.find( "input[name='width']" ).val();
         var height = form.find( "input[name='height']" ).val();
         var bitrate = form.find( "input[name='bitRate']" ).val();
-        console.log(id);
-        console.log(idinternal);
-        console.log(width);
-        console.log(height);
-        console.log(bitrate);
-        console.log(lmsVideos[idinternal].dstR);
 
         configureFilter(parseInt(id), 'configure', { "width" : parseInt(width), "height" : parseInt(height), "discartPeriod" : 0, "pixelFormat" : 2 });
         configureFilter(parseInt(id) + 1, 'configure', { "bitrate" : parseInt( bitrate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
@@ -444,7 +438,10 @@ $(document).ready( function() {
         lmsVideos[idinternal].height = height;
         lmsVideos[idinternal].bitRate = bitrate;
 
+        $('#editDashVideoModal').modal({show:false});
+
         loadCurrentRepresentations();
+        $("#state").html('');
     };
 
     function setEditAudio (form) {
@@ -454,12 +451,6 @@ $(document).ready( function() {
         var samplerate = form.find( "input[name='sampleRate']" ).val();
         var channels = form.find( "input[name='channels']" ).val();
         var bitrate = form.find( "input[name='bitRate']" ).val();
-        console.log(id);
-        console.log(idinternal);
-        console.log(samplerate);
-        console.log(channels);
-        console.log(bitrate);    
-        console.log(lmsAudios[idinternal].dstR);
 
         configureFilter(parseInt(id), 'configure', { "codec" : 'aac', "sampleRate" : parseInt(samplerate), 
                                                             "channels" : parseInt(channels), "bitrate" : parseInt(bitrate) });
@@ -469,8 +460,12 @@ $(document).ready( function() {
         lmsAudios[idinternal].channels = channels;
         lmsAudios[idinternal].bitRate = bitrate;
 
+        $('#editDashAudioModal').modal({show:false});
+
         loadCurrentRepresentations();
-    }
+        $("#state").html('');
+    };
+
     ////////////////////////////////////////////
     // SPECIFIC SCENARIO/UI METHODS
     ////////////////////////////////////////////

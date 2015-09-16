@@ -94,7 +94,12 @@ $(document).ready( function() {
                     dataType: 'json',
                     success : function(msg) {
                         if(!msg.error){
+                            lmsVideos = [];
+                            lmsAudios = [];
                             lmsInstance = null;
+                            lmsState = null;
+                            lmsDash = null;
+                            lmsPaths = [];
                             addAlertSuccess(msg.message);
                             apiURI = null;
                             sHost = null;
@@ -393,16 +398,83 @@ $(document).ready( function() {
         }
     }; 
 
+    function addDynVideo (form) {
+        console.log("ADD NEW VIDEO FORM")
+        var width = form.find( "input[name='width']" ).val();
+        var height = form.find( "input[name='height']" ).val();
+        var bitRate = form.find( "input[name='bitRate']" ).val();
+        if(!isNaN(width) || !isNaN(height) || !isNaN(bitRate)){
+            lmsVideos.push(
+                {
+                    "id": parseInt(vId),  
+                    "width": parseInt(width),
+                    "height": parseInt(height),
+                    "bitRate": parseInt(bitRate),
+                    "dstR": parseInt(vDstReaderId)
+                }
+            );
+            createFilter(lmsVideos[lmsVideos.length-1].id, 'videoResampler');
+            createFilter(lmsVideos[lmsVideos.length-1].id + 1, 'videoEncoder');
+            configureFilter(lmsVideos[lmsVideos.length-1].id, 'configure', { "width" : lmsVideos[lmsVideos.length-1].width, "height" : lmsVideos[lmsVideos.length-1].height, "discartPeriod" : 0, "pixelFormat" : 2 });
+            configureFilter(lmsVideos[lmsVideos.length-1].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[lmsVideos.length-1].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
+                                                        "threads" : 4, "annexb" : true, "preset" : "superfast" });
+
+            createPath(++vMasterPathId, vDecoderId, dashId, -1, lmsVideos[lmsVideos.length-1].dstR, [lmsVideos[lmsVideos.length-1].id, lmsVideos[lmsVideos.length-1].id + 1]);
+            configureFilter(dashId, 'addSegmenter', { "id" : lmsVideos[lmsVideos.length-1].dstR});
+            configureFilter(dashId, 'setBitrate', { "id" : lmsVideos[lmsVideos.length-1].dstR, "bitrate": lmsVideos[lmsVideos.length-1].bitRate });     
+
+            vDstReaderId++;
+            vId += 2;
+            addAlertSuccess('Success setting new video representation');
+        } else {
+            addAlertError('ERROR: no valid video params... please check.');
+        }
+        $('.modal.in').modal('hide');
+        loadCurrentRepresentations();
+        $("#state").html('');
+    };
+
+    function addDynAudio (form) {
+        console.log("ADD NEW AUDIO FORM")
+        var sampleRate = form.find( "input[name='sampleRate']" ).val();
+        var channels = form.find( "input[name='channels']" ).val();
+        var bitRate = form.find( "input[name='bitRate']" ).val();
+        if(!isNaN(sampleRate) || !isNaN(channels) || !isNaN(bitRate)){
+            lmsAudios.push(
+                {
+                    "id": parseInt(aId),  
+                    "sampleRate": parseInt(sampleRate),
+                    "channels": parseInt(channels),
+                    "bitRate": parseInt(bitRate), 
+                    "dstR": parseInt(aDstReaderId)
+                }
+            );
+            createFilter(lmsAudios[lmsAudios.length-1].id, 'audioEncoder');
+            configureFilter(lmsAudios[lmsAudios.length-1].id, 'configure', { "codec" : 'aac', "sampleRate" : parseInt(lmsAudios[lmsAudios.length-1].sampleRate), 
+                                                            "channels" : lmsAudios[lmsAudios.length-1].channels, "bitrate" : lmsAudios[lmsAudios.length-1].bitRate });
+
+            createPath(++aMasterPathId, aDecoderId, dashId, -1, lmsAudios[lmsAudios.length-1].dstR, [lmsAudios[lmsAudios.length-1].id]);
+            configureFilter(dashId, 'addSegmenter', { "id" : lmsAudios[lmsAudios.length-1].dstR});
+            configureFilter(dashId, 'setBitrate', { "id" : lmsAudios[lmsAudios.length-1].dstR, "bitrate": lmsAudios[lmsAudios.length-1].bitRate });
+
+            aDstReaderId++;
+            aId += 2;
+            addAlertSuccess('Success setting new audio representation');
+        } else {
+            addAlertError('ERROR: no valid audio params... please check.');        
+        }                 
+        $('.modal.in').modal('hide');
+        loadCurrentRepresentations();
+        $("#state").html('');
+    }
+
     function editVideo (form) {
         console.log("EDIT VIDEO FORM")
         var id = form.find( "div[id='vidid']" ).text();
         var width = form.find( "div[id='vidw']" ).text();
         var height = form.find( "div[id='vidh']" ).text();
         var bitrate = form.find( "div[id='vidb']" ).text();
-        console.log(lmsVideos[id].id);
-        console.log(width);
-        console.log(height);
-        console.log(bitrate);
+
         addEditVideoModal(id,width,height,bitrate);
         $('#editDashVideoModal').modal({show:true});
     };
@@ -413,10 +485,7 @@ $(document).ready( function() {
         var samplerate = form.find( "div[id='auds']" ).text();
         var channels = form.find( "div[id='audc']" ).text();
         var bitrate = form.find( "div[id='audb']" ).text();
-        console.log(lmsAudios[id].id);
-        console.log(samplerate);
-        console.log(channels);
-        console.log(bitrate);    
+
         addEditAudioModal(id,samplerate,channels,bitrate);
         $('#editDashAudioModal').modal({show:true});
     }
@@ -439,6 +508,7 @@ $(document).ready( function() {
         lmsVideos[idinternal].bitRate = bitrate;
 
         $('#editDashVideoModal').modal({show:false});
+        $('.modal.in').modal('hide');
 
         loadCurrentRepresentations();
         $("#state").html('');
@@ -461,6 +531,7 @@ $(document).ready( function() {
         lmsAudios[idinternal].bitRate = bitrate;
 
         $('#editDashAudioModal').modal({show:false});
+        $('.modal.in').modal('hide');
 
         loadCurrentRepresentations();
         $("#state").html('');
@@ -683,7 +754,7 @@ $(document).ready( function() {
                 }
             } else {
                 console.log("VIDEO SLAVE PATH")
-                createPath(vMasterPathId + i, vDecoderId, dashId, -1, vDstReaderId, [lmsVideos[i].id, lmsVideos[i].id + 1]);
+                createPath(++vMasterPathId, vDecoderId, dashId, -1, vDstReaderId, [lmsVideos[i].id, lmsVideos[i].id + 1]);
                 configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                 lmsVideos[i].dstR = vDstReaderId;
@@ -713,7 +784,7 @@ $(document).ready( function() {
                 }
             } else {
                 console.log("AUDIO SLAVE PATH")
-                createPath(aMasterPathId + i, aDecoderId, dashId, -1, aDstReaderId, [lmsAudios[i].id]);
+                createPath(++aMasterPathId, aDecoderId, dashId, -1, aDstReaderId, [lmsAudios[i].id]);
                 configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                 lmsAudios[i].dstR = aDstReaderId;

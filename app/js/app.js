@@ -532,11 +532,10 @@ $(document).ready( function() {
             createFilter(lmsVideos[lmsVideos.length-1].id, 'videoResampler');
             createFilter(lmsVideos[lmsVideos.length-1].id + 1, 'videoEncoder');
             configureFilter(lmsVideos[lmsVideos.length-1].id, 'configure', { "width" : lmsVideos[lmsVideos.length-1].width, "height" : lmsVideos[lmsVideos.length-1].height, "discartPeriod" : 0, "pixelFormat" : 2 });
-            configureFilter(lmsVideos[lmsVideos.length-1].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[lmsVideos.length-1].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
+            configureFilter(lmsVideos[lmsVideos.length-1].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[lmsVideos.length-1].bitRate / 1000 ), "fps" : 25, "gop" : 100, "lookahead" : 0,
                                                         "threads" : 4, "annexb" : true, "preset" : "superfast" });
 
             createPath(++vMasterPathId, vDecoderId, dashId, -1, lmsVideos[lmsVideos.length-1].dstR, [lmsVideos[lmsVideos.length-1].id, lmsVideos[lmsVideos.length-1].id + 1]);
-            configureFilter(dashId, 'addSegmenter', { "id" : lmsVideos[lmsVideos.length-1].dstR});
             configureFilter(dashId, 'setBitrate', { "id" : lmsVideos[lmsVideos.length-1].dstR, "bitrate": lmsVideos[lmsVideos.length-1].bitRate });     
 
             vDstReaderId++;
@@ -570,7 +569,6 @@ $(document).ready( function() {
                                                             "channels" : lmsAudios[lmsAudios.length-1].channels, "bitrate" : lmsAudios[lmsAudios.length-1].bitRate });
 
             createPath(++aMasterPathId, aDecoderId, dashId, -1, lmsAudios[lmsAudios.length-1].dstR, [lmsAudios[lmsAudios.length-1].id]);
-            configureFilter(dashId, 'addSegmenter', { "id" : lmsAudios[lmsAudios.length-1].dstR});
             configureFilter(dashId, 'setBitrate', { "id" : lmsAudios[lmsAudios.length-1].dstR, "bitrate": lmsAudios[lmsAudios.length-1].bitRate });
 
             aDstReaderId++;
@@ -615,7 +613,7 @@ $(document).ready( function() {
         var bitrate = form.find( "input[name='bitRate']" ).val();
 
         configureFilter(parseInt(id), 'configure', { "width" : parseInt(width), "height" : parseInt(height), "discartPeriod" : 0, "pixelFormat" : 2 });
-        configureFilter(parseInt(id) + 1, 'configure', { "bitrate" : parseInt( bitrate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
+        configureFilter(parseInt(id) + 1, 'configure', { "bitrate" : parseInt( bitrate / 1000 ), "fps" : 25, "gop" : 100, "lookahead" : 0,
                                                         "threads" : 4, "annexb" : true, "preset" : "superfast" });
         configureFilter(dashId, 'setBitrate', { "id" : lmsVideos[idinternal].dstR, "bitrate" : parseInt(bitrate) });
 
@@ -865,21 +863,19 @@ $(document).ready( function() {
             createFilter(lmsVideos[i].id, 'videoResampler');
             createFilter(lmsVideos[i].id + 1, 'videoEncoder');
             configureFilter(lmsVideos[i].id, 'configure', { "width" : lmsVideos[i].width, "height" : lmsVideos[i].height, "discartPeriod" : 0, "pixelFormat" : 2 });
-            configureFilter(lmsVideos[i].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[i].bitRate / 1000 ), "fps" : 25, "gop" : 25, "lookahead" : 0,
+            configureFilter(lmsVideos[i].id + 1, 'configure', { "bitrate" : parseInt( lmsVideos[i].bitRate / 1000 ), "fps" : 25, "gop" : 100, "lookahead" : 0,
                                                         "threads" : 4, "annexb" : true, "preset" : "superfast" });
             if(i === 0){
                 console.log("VIDEO MASTER PATH")
                 if(lmsInput.medium == 'video'){
                     console.log("VIDEO")
                     createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);
-                    configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                     lmsVideos[i].dstR = vDstReaderId;
                     vDstReaderId++;
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHv")
                     createPath(lmsInput.videoParams.subsessions[0].port, receiverId, dashId, lmsInput.videoParams.subsessions[0].port, vDstReaderId, [vDecoderId, lmsVideos[i].id, lmsVideos[i].id + 1]);                    
-                    configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                     lmsVideos[i].dstR = vDstReaderId;
                     vDstReaderId++;
@@ -887,7 +883,6 @@ $(document).ready( function() {
             } else {
                 console.log("VIDEO SLAVE PATH")
                 createPath(++vMasterPathId, vDecoderId, dashId, -1, vDstReaderId, [lmsVideos[i].id, lmsVideos[i].id + 1]);
-                configureFilter(dashId, 'addSegmenter', { "id" : vDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : vDstReaderId, "bitrate": lmsVideos[i].bitRate });
                 lmsVideos[i].dstR = vDstReaderId;
                 vDstReaderId++;                
@@ -902,14 +897,12 @@ $(document).ready( function() {
                 if(lmsInput.medium == 'audio'){
                     console.log("AUDIO")
                     createPath(lmsInput.params.subsessions[0].port, receiverId, dashId, lmsInput.params.subsessions[0].port, aDstReaderId, [aDecoderId, lmsAudios[i].id]);
-                    configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     lmsAudios[i].dstR = aDstReaderId;
                     aDstReaderId++; 
                 } else if (lmsInput.medium == 'both') {
                     console.log("BOTHa")
                     createPath(lmsInput.audioParams.subsessions[0].port, receiverId, dashId, lmsInput.audioParams.subsessions[0].port, aDstReaderId, [aDecoderId, lmsAudios[i].id]);                    
-                    configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                     configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                     lmsAudios[i].dstR = aDstReaderId;
                     aDstReaderId++; 
@@ -917,7 +910,6 @@ $(document).ready( function() {
             } else {
                 console.log("AUDIO SLAVE PATH")
                 createPath(++aMasterPathId, aDecoderId, dashId, -1, aDstReaderId, [lmsAudios[i].id]);
-                configureFilter(dashId, 'addSegmenter', { "id" : aDstReaderId});
                 configureFilter(dashId, 'setBitrate', { "id" : aDstReaderId, "bitrate": lmsAudios[i].bitRate });
                 lmsAudios[i].dstR = aDstReaderId;
                 aDstReaderId++; 

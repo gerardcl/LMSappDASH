@@ -73,28 +73,7 @@
   </form>
 </div>    
 
-<!-- Modal window - form: addRepresentationModal -->
-<div class="modal fade" id="addRepresentationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Select representation media type</h4>
-      </div>
-      <div class="modal-body">
-      <!-- The form is placed inside the body of modal -->
-        <div class="row">
-          <div class="col-sm-6">
-            <button data-dismiss="modal" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addAudioModal" id="addAudioRepModal"><span class="glyphicon glyphicon-plus"></span> Add audio </button>
-          </div>
-          <div class="col-sm-6">
-            <button data-dismiss="modal" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addVideoModal" id="addVideoRepModal"><span class="glyphicon glyphicon-plus"></span> Add video</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<div id="addRepresentationsMediaTypeSelectorModal"></div>
 
 <!-- Modal window - form: addAudioModal -->
 <div class="modal fade" id="addAudioModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

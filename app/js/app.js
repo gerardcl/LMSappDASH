@@ -11,6 +11,8 @@ $(document).ready( function() {
         lmsVideos = [],
         lmsAudios = [],
         lmsPaths = [];
+    var thereIsVideo = false;
+    var thereIsAudio = false;
     var receiverId = 1000
     var dashId = 1001;
     var vDecoderId = 2000;
@@ -104,6 +106,8 @@ $(document).ready( function() {
                             apiURI = null;
                             sHost = null;
                             sPort = null;
+                            thereIsAudio = false;
+                            thereIsVideo = false;
                             $("#disconnectButton").addClass("hidden");
                             $("#state").html('');
                             unloadDasherState();
@@ -174,7 +178,12 @@ $(document).ready( function() {
                 'audioParams' : { 'subsessions' : [ { } ] }
             };   
             addAlertSuccess('Success setting network input params');
-            $("#view").load("./app/views/dasher.html");
+
+            setReceiverAndDecoders();
+
+            $("#view").load("./app/views/dasher.html", function(res, stat, xhr) {
+                loadAddRepresentationsMediaTypeSelectorModal();
+            });
         } else {
             lmsInput = null;
             addAlertError('ERROR: no valid inputs... please check.');
@@ -197,7 +206,12 @@ $(document).ready( function() {
                 'audioParams' : { 'subsessions' : [ { } ] }
             };  
             addAlertSuccess('Success setting network input params');
-            $("#view").load("./app/views/dasher.html");
+
+            setReceiverAndDecoders();
+
+            $("#view").load("./app/views/dasher.html", function(res, stat, xhr) {
+                loadAddRepresentationsMediaTypeSelectorModal();
+            });
         } else {
             lmsInput = null;
             addAlertError('ERROR: no valid inputs... please check.');
@@ -230,7 +244,12 @@ $(document).ready( function() {
                         }
                     };
                     addAlertSuccess('Success setting network input params');
-                    $("#view").load("./app/views/dasher.html");
+
+                    setReceiverAndDecoders();
+
+                    $("#view").load("./app/views/dasher.html", function(res, stat, xhr) {
+                        loadAddRepresentationsMediaTypeSelectorModal();
+                    });
                 }
                 break;
             case 'a':
@@ -259,7 +278,12 @@ $(document).ready( function() {
                         }
                     };
                     addAlertSuccess('Success setting network input params');
-                    $("#view").load("./app/views/dasher.html");
+
+                    setReceiverAndDecoders();
+
+                    $("#view").load("./app/views/dasher.html", function(res, stat, xhr) {
+                        loadAddRepresentationsMediaTypeSelectorModal();
+                    });
                 }
                 break;
             case 'av':
@@ -303,7 +327,12 @@ $(document).ready( function() {
                         }
                     };
                     addAlertSuccess('Success setting network input params');
-                    $("#view").load("./app/views/dasher.html");
+
+                    setReceiverAndDecoders();
+
+                    $("#view").load("./app/views/dasher.html", function(res, stat, xhr) {
+                        loadAddRepresentationsMediaTypeSelectorModal();
+                    });
                 }
                 break;
             default:
@@ -311,6 +340,95 @@ $(document).ready( function() {
                 addAlertError('ERROR: no valid inputs... please check.');
                 break;
         }
+    };
+
+    function loadAddRepresentationsMediaTypeSelectorModal() {
+        console.log("loadAddRepresentationsMediaTypeSelectorModal");
+        if(thereIsAudio == true && thereIsVideo == true){
+            $( "#addRepresentationsMediaTypeSelectorModal" ).append( 
+                "<div class=\"modal fade\" id=\"addRepresentationModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">"+
+                  "<div class=\"modal-dialog\">"+
+                    "<div class=\"modal-content\">"+
+                      "<div class=\"modal-header\">"+
+                        "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>"+
+                        "<h4 class=\"modal-title\">Select representation media type</h4>"+
+                      "</div>"+
+                      "<div class=\"modal-body\">"+
+                        "<div class=\"row\">"+
+                          "<div class=\"col-sm-6\">"+
+                            "<button data-dismiss=\"modal\" class=\"btn btn-default btn-sm\" data-toggle=\"modal\" data-target=\"#addAudioModal\" id=\"addAudioRepModal\"><span class=\"glyphicon glyphicon-plus\"></span> Add audio </button>"+
+                          "</div>"+
+                          "<div class=\"col-sm-6\">"+
+                            "<button data-dismiss=\"modal\" class=\"btn btn-default btn-sm\" data-toggle=\"modal\" data-target=\"#addVideoModal\" id=\"addVideoRepModal\"><span class=\"glyphicon glyphicon-plus\"></span> Add video</button>"+
+                          "</div>"+
+                        "</div>"+
+                      "</div>"+
+                    "</div>"+
+                  "</div>"+
+                "</div>"
+            );            
+        } else if ( thereIsVideo == true) {
+            $( "#addRepresentationsMediaTypeSelectorModal" ).append( 
+                "<div class=\"modal fade\" id=\"addRepresentationModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">"+
+                  "<div class=\"modal-dialog\">"+
+                    "<div class=\"modal-content\">"+
+                      "<div class=\"modal-header\">"+
+                        "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>"+
+                        "<h4 class=\"modal-title\">Select representation media type</h4>"+
+                      "</div>"+
+                      "<div class=\"modal-body\">"+
+                        "<div class=\"row\">"+
+                          "<div class=\"col-sm-offset-3 col-sm-6\">"+
+                            "<button data-dismiss=\"modal\" class=\"btn btn-default btn-sm\" data-toggle=\"modal\" data-target=\"#addVideoModal\" id=\"addVideoRepModal\"><span class=\"glyphicon glyphicon-plus\"></span> Add video</button>"+
+                          "</div>"+
+                        "</div>"+
+                      "</div>"+
+                    "</div>"+
+                  "</div>"+
+                "</div>"
+            );  
+        } else if ( thereIsAudio == true) {
+            $( "#addRepresentationsMediaTypeSelectorModal" ).append( 
+                "<div class=\"modal fade\" id=\"addRepresentationModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">"+
+                  "<div class=\"modal-dialog\">"+
+                    "<div class=\"modal-content\">"+
+                      "<div class=\"modal-header\">"+
+                        "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>"+
+                        "<h4 class=\"modal-title\">Select representation media type</h4>"+
+                      "</div>"+
+                      "<div class=\"modal-body\">"+
+                        "<div class=\"row\">"+
+                          "<div class=\"col-sm-offset-3 col-sm-6\">"+
+                            "<button data-dismiss=\"modal\" class=\"btn btn-default btn-sm\" data-toggle=\"modal\" data-target=\"#addAudioModal\" id=\"addAudioRepModal\"><span class=\"glyphicon glyphicon-plus\"></span> Add audio </button>"+
+                          "</div>"+
+                        "</div>"+
+                      "</div>"+
+                    "</div>"+
+                  "</div>"+
+                "</div>"
+            );     
+        } else {
+            $( "#addRepresentationsMediaTypeSelectorModal" ).append( 
+                "<div class=\"modal fade\" id=\"addRepresentationModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">"+
+                  "<div class=\"modal-dialog\">"+
+                    "<div class=\"modal-content\">"+
+                      "<div class=\"modal-header\">"+
+                        "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>"+
+                        "<h4 class=\"modal-title\">Select representation media type</h4>"+
+                      "</div>"+
+                      "<div class=\"modal-body\">"+
+                        "<div class=\"row\">"+
+                          "<div class=\"col-sm-offset-3 col-sm-6\">"+
+                            "<span class=\"glyphicon glyphicon-exclamation-sign\"></span> No audio or video inputs!"+
+                          "</div>"+
+                        "</div>"+
+                      "</div>"+
+                    "</div>"+
+                  "</div>"+
+                "</div>"
+            ); 
+        }
+        $("#state").html('');
     };
 
     function addVideoDASH(form) {
@@ -385,8 +503,6 @@ $(document).ready( function() {
                 "segDurInSec":parseInt(segDurInSec)
             };
             $("#view").html('');
-
-            setReceiverAndDecoders();
 
             setDasher();
 
@@ -618,9 +734,12 @@ $(document).ready( function() {
                                         createFilter(vDecoderId,'videoDecoder');
                                         if ( lmsState.filters[k].streams.length > 1) {
                                             lmsInput.medium = 'both';
+                                            thereIsVideo = true;
+                                            thereIsAudio = true;
                                             lmsInput.videoParams.subsessions[0].port = lmsState.filters[k].streams[j].wId;
                                         }
                                         else  {
+                                            thereIsVideo = true;
                                             lmsInput.medium = 'video';
                                             lmsInput.params.subsessions[0].port = lmsState.filters[k].streams[j].wId;
                                         }
@@ -629,10 +748,13 @@ $(document).ready( function() {
                                     case 0:
                                         createFilter(aDecoderId,'audioDecoder');
                                         if ( lmsState.filters[k].streams.length > 1) {
+                                            thereIsAudio = true;
+                                            thereIsVideo = true;
                                             lmsInput.medium = 'both';
                                             lmsInput.audioParams.subsessions[0].port = lmsState.filters[k].streams[j].wId;
                                         }
                                         else  {
+                                            thereIsAudio = true;
                                             lmsInput.medium = 'audio';
                                             lmsInput.params.subsessions[0].port = lmsState.filters[k].streams[j].wId;
                                         }
@@ -659,10 +781,13 @@ $(document).ready( function() {
                                     case "video":
                                         createFilter(vDecoderId,'videoDecoder');
                                         if ( num > 1) {
+                                            thereIsAudio = true;
+                                            thereIsVideo = true;
                                             lmsInput.medium = 'both';
                                             lmsInput.videoParams.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;    
                                         }
                                         else  {
+                                            thereIsVideo = true;
                                             lmsInput.medium = 'video';
                                             lmsInput.params.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;
                                         }
@@ -671,10 +796,13 @@ $(document).ready( function() {
                                     case "audio":
                                         createFilter(aDecoderId,'audioDecoder');
                                         if ( num > 1) {
+                                            thereIsAudio = true;
+                                            thereIsVideo = true;
                                             lmsInput.medium = 'both';
                                             lmsInput.audioParams.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;
                                         }
                                         else  {
+                                            thereIsAudio = true;
                                             lmsInput.medium = 'audio';
                                             lmsInput.params.subsessions[0].port = lmsState.filters[k].sessions[0].subsessions[j].port;
                                         }
@@ -694,17 +822,21 @@ $(document).ready( function() {
                 switch(lmsInput.medium){
                     case 'video':
                         if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(vDecoderId,'videoDecoder')){
+                            thereIsVideo = true;
                             okmsg = true;
                         }
                         break;
                     case 'audio':
                         if (configureFilter(receiverId, 'addSession', lmsInput.params) && createFilter(aDecoderId,'audioDecoder')){
+                            thereIsAudio = true;
                             okmsg = true;
                         }
                         break;
                     case 'both':
                         if(configureFilter(receiverId, 'addSession', lmsInput.audioParams) && createFilter(aDecoderId,'audioDecoder')){ 
                             if(configureFilter(receiverId, 'addSession', lmsInput.videoParams) && createFilter(vDecoderId,'videoDecoder')){
+                            thereIsAudio = true;
+                            thereIsVideo = true;
                             okmsg = true;
                         }}
                         break;

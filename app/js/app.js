@@ -493,6 +493,8 @@ $(document).ready( function() {
         var dashFolder = form.find( "input[id='dashFolder']" ).val();
         var baseName = form.find( "input[id='baseName']" ).val();
         var segDurInSec = form.find( "input[id='segDurInSec']" ).val();
+        var maxSeg = form.find( "input[id='maxSeg']" ).val();
+        var minBuffTime = form.find( "input[id='minBuffTime']" ).val();
 
         if(lmsAudios.length == 0 && lmsVideos.length == 0){
             addAlertError('Please: add representations!');
@@ -500,7 +502,9 @@ $(document).ready( function() {
             lmsDash = {
                 "folder":dashFolder,
                 "baseName":baseName,
-                "segDurInSec":parseInt(segDurInSec)
+                "segDurInSec":parseInt(segDurInSec),
+                "maxSeg":parseInt(maxSeg),
+                "minBuffTime":parseInt(minBuffTime)
             };
             $("#view").html('');
 
